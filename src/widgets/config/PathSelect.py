@@ -1,5 +1,4 @@
 import os
-from widgets import qtProperty
 import util
 from common import cui
 from PyQt4.QtGui import QWidget, QPushButton, QLineEdit, QFileDialog
@@ -8,30 +7,7 @@ _FormClass, _BaseClass = util.loadUiType(cui('PathSelect.ui'))
 
 class PathSelectWidget(_FormClass, _BaseClass):
     """
-    A widget class that allows for path browsing and selection. Configured via
-    qtProperty attributes, which read and write QObject properties with the
-    same name underneath (akin to the @property decorator), which allows
-    setting defaults in the .ui files.
-    """
-
-    _buttonLabel = qtProperty('buttonLabel')
-    """
-    Path browsing button text property. qtProperty.
-    """
-
-    _selectedPath = qtProperty('selectedPath')
-    """
-    Selected path property. Shown in the box next to the button. qtProperty.
-    """
-
-    defaultDialogPath = qtProperty('defaultDialogPath')
-    """
-    Default path opened by the "Choose path" dialog. qtProperty.
-    """
-
-    fileDialogLabel = qtProperty('fileDialogLabel')
-    """
-    Label for the opened file dialog. qtProperty.
+    A widget class that allows for path browsing and selection.
     """
 
     newPath = pyqtSignal(str)
@@ -42,6 +18,19 @@ class PathSelectWidget(_FormClass, _BaseClass):
     def __init__(self, *args, **kwargs):
         _BaseClass.__init__(self, *args, **kwargs)
         self.setupUi(self)
+
+        self._buttonLabel = self.property('buttonLabel')
+        """Label on the 'browse path' button."""
+
+        self._selectedPath = self.property('selectedPath')
+        """Selected path."""
+
+        self.defaultDialogPath = self.property('defaultDialogPath')
+        """Default path shown by the path browsing window."""
+
+        self.fileDialogLabel = self.property('fileDialogLabel')
+        """Path browsing window label."""
+
         self._browseButton = self.findChild(QPushButton, 'browseButton')
         self._pathLabel = self.findChild(QLineEdit, 'pathLabel')
 
