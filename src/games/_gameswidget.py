@@ -14,6 +14,7 @@ import fa
 import modvault
 import notifications as ns
 from config import Settings
+from config import modules as cfg
 
 import logging
 
@@ -248,11 +249,11 @@ class GamesWidget(FormClass, BaseClass):
                                   faction=self.race.value))
         else:
             # Experimental UPnP Mapper - mappings are removed on app exit
-            if self.client.useUPnP:
-                fa.upnp.createPortMapping(self.client.localIP, self.client.gamePort, "UDP")
+            if src.game.upnp.get():
+                fa.upnp.createPortMapping(self.client.localIP, cfg.game.port.get(), "UDP")
 
             logger.info("Starting Ranked Search as " + str(race) +
-                        ", port: " + str(self.client.gamePort))
+                        ", port: " + str(cfg.game.port.get()))
             self.searching = True
             self.race = race
             self.searchProgress.setVisible(True)

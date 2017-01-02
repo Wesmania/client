@@ -10,6 +10,7 @@ import time
 import client
 import json
 
+from config import modules as cfg
 import logging
 logger = logging.getLogger(__name__)
 
@@ -430,7 +431,7 @@ class ReplaysWidget(BaseClass, FormClass):
                     url.addQueryItem("mod", info["featured_mod"])
 
                     playeritem.url = url
-                    if client.instance.login == name:
+                    if cfg.user.login.get() == name:
                         mygame = True
                         item.setTextColor(1, QtGui.QColor(client.instance.getColor("self")))
                         playeritem.setTextColor(0, QtGui.QColor(client.instance.getColor("self")))

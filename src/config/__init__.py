@@ -28,7 +28,7 @@ class Settings:
     @staticmethod
     def get(key, default=None, type=str):
         # Get from a local dict cache before hitting QSettings
-        # this is for properties such as client.login which we
+        # this is for properties such as user.login which we
         # don't necessarily want to persist
         if key in _unpersisted_settings:
             return _unpersisted_settings[key]
