@@ -36,7 +36,9 @@ class Settings:
         if _settings.contains(key):
             return _settings.value(key, type=type)
         # Try out our defaults for the current environment
-        return defaults.get(key, default)
+        if defaults.contains(key):
+            return defaults.value(key, type=type)
+        return default
 
     @staticmethod
     def set(key, value, persist=True):
@@ -130,21 +132,14 @@ no_dialogs = False
 
 environment = 'production'
 
-
 def is_beta():
     return environment == 'development'
 
 if _settings.contains('client/force_environment'):
     environment = _settings.value('client/force_environment', 'development')
 
-if environment == 'production':
-    from production import defaults
-elif environment == 'development':
-    from develop import defaults
-
-for k, v in defaults.iteritems():
-    if isinstance(v, str):
-        defaults[k] = v.format(host = Settings.get('host'))
+defaults = os.path.join(fafpath.get_resdir(), "default_settings", environment + ".ini")
+defaults = QtCore.QSettings(defaults, QtCore.QSettings.IniFormat)
 
 # Setup normal rotating log handler
 make_dirs()
