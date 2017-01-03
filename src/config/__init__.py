@@ -55,22 +55,6 @@ class Settings:
         if _settings.contains(key):
             _settings.remove(key)
 
-    @staticmethod
-    def persisted_property(key, default_value=None, persist_if=lambda self: True, type=str):
-        """
-        Create a magically persisted property
-
-        :param key: QSettings key to persist with
-        :param default_value: default value
-        :param persist_if: Lambda predicate that gets self as a first argument.
-                           Determines whether or not to persist the value
-        :param type: Type of values for persisting
-        :return: a property suitable for a class
-        """
-        return property(lambda s: Settings.get(key, default=default_value, type=type),
-                        lambda s, v: Settings.set(key, v, persist=persist_if(s)),
-                        doc='Persisted property: {}. Default: '.format(key, default_value))
-
 def set_data_path_permissions():
     """
     Set the owner of C:\ProgramData\FAForever recursively to the current user
