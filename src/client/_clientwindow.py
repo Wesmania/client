@@ -616,6 +616,9 @@ class ClientWindow(FormClass, BaseClass):
             self.progress.setLabelText("Closing main window")
             self.close()
 
+        # Save settings
+        Settings.sync()
+
         self.progress.close()
 
     def closeEvent(self, event):
@@ -728,7 +731,6 @@ class ClientWindow(FormClass, BaseClass):
                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if (result == QtGui.QMessageBox.Yes):
             Settings.clear()
-            Settings.sync()
             QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
             QtGui.QApplication.quit()
 
