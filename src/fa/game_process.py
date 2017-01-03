@@ -49,10 +49,9 @@ class GameProcess(QtCore.QProcess):
                 command = '"' + executable + '" ' + " ".join(arguments)
             else:
                 command = util.wine_cmd_prefix + " " + util.wine_exe + ' "' + executable + '" ' + " ".join(arguments)
-                if util.wine_prefix:
-                    wine_env = QtCore.QProcessEnvironment.systemEnvironment()
-                    wine_env.insert("WINEPREFIX", util.wine_prefix)
-                    QtCore.QProcess.setProcessEnvironment(self, wine_env)
+                wine_env = QtCore.QProcessEnvironment.systemEnvironment()
+                wine_env.insert("WINEPREFIX", util.wine_prefix)
+                QtCore.QProcess.setProcessEnvironment(self, wine_env)
             logger.info("Running FA with info: " + str(info))
             logger.info("Running FA via command: " + command)
             logger.info("Running FA via executable: " + executable)
