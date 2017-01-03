@@ -5,6 +5,8 @@ from PyQt4 import QtCore, QtGui
 import config
 import re
 
+from config import modules as cfg
+
 import util
 import logging
 logger = logging.getLogger(__name__)
@@ -41,7 +43,7 @@ class GameProcess(QtCore.QProcess):
             """
             self.info = info
 
-            executable = os.path.join(config.Settings.get('game/bin/path'),
+            executable = os.path.join(cfg.game.bin_path.get(),
                                       "ForgedAlliance.exe")
             if sys.platform == 'win32':
                 command = '"' + executable + '" ' + " ".join(arguments)
