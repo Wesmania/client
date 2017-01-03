@@ -302,7 +302,7 @@ class Chatter(QtGui.QTableWidgetItem):
                 menu.addAction(action_inspect_in_mordor)
 
                 def send_the_orcs():
-                    route = Settings.get('mordor/host')
+                    route = cfg.mordor.host.get()
 
                     if self.id != -1:
                         QtGui.QDesktopServices.openUrl(QUrl("{}/users/{}".format(route, self.id)))
