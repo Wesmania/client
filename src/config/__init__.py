@@ -55,6 +55,12 @@ class Settings:
         if _settings.contains(key):
             _settings.remove(key)
 
+    @staticmethod
+    def contains(key):
+        return (key in _unpersisted_settings or
+                _settings.contains(key) or
+                defaults.contains(key))
+
 def set_data_path_permissions():
     """
     Set the owner of C:\ProgramData\FAForever recursively to the current user

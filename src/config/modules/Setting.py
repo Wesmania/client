@@ -25,6 +25,12 @@ class Setting(QObject):
     def name(self):
         return self._name
 
+    def delete(self):
+        return Settings.remove(self.name)
+
+    def isSet(self):
+        return Settings.contains(self.name)
+
 class PathSetting(Setting):
     """
     Represents a setting that stores a path. Converts path on the fly between
