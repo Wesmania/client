@@ -1,6 +1,5 @@
 from PyQt4 import QtCore, QtGui
 import re
-from config import Settings
 import util
 
 import hashlib
