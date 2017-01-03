@@ -1,3 +1,3 @@
 from Setting import Setting
 
-name = Setting("theme/name")
+name = Setting("theme/theme/name")

@@ -19,6 +19,7 @@ from fa.game_session import GameSessionState
 from ui.status_logo import StatusLogo
 
 from config import modules as cfg
+from config import Settings
 
 '''
 Created on Dec 1, 2011
@@ -726,8 +727,8 @@ class ClientWindow(FormClass, BaseClass):
                                             "Are you sure you wish to clear all settings, login info, etc. used by this program?",
                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if (result == QtGui.QMessageBox.Yes):
-            util.settings.clear()
-            util.settings.sync()
+            Settings.clear()
+            Settings.sync()
             QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
             QtGui.QApplication.quit()
 

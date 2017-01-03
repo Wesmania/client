@@ -77,3 +77,13 @@ class Settings:
         return (key in _unpersisted_settings or
                 _settings.contains(key) or
                 defaults.contains(key))
+
+    # If you use this, setting signals will not be emitted!
+    @staticmethod
+    def clear():
+        _settings.clear()
+        _unpersisted_settings = {}
+
+    @staticmethod
+    def sync():
+        _settings.sync()

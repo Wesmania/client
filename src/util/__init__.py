@@ -7,6 +7,8 @@ from ctypes import *
 from PyQt4.QtGui import QDesktopServices, QMessageBox
 
 from config import modules as cfg
+from config import Settings
+
 from PyQt4.QtGui import QDesktopServices
 if sys.platform == 'win32':
     import win32serviceutil
@@ -58,11 +60,6 @@ REPO_DIR = os.path.join(APPDATA_DIR, "repo")
 
 if not os.path.exists(REPO_DIR):
     os.makedirs(REPO_DIR)
-
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
 
 # initialize wine settings for non Windows platforms
 if sys.platform != 'win32':
@@ -162,12 +159,6 @@ __pixmapcache = {}
 __theme = None
 __themedir = None
 
-
-# Public settings object
-# Stolen from Config because reasons
-from config import _settings
-settings = _settings
-
 def clean_slate(path):
     if os.path.exists(path):
         logger.info("Wiping " + path)
@@ -179,9 +170,7 @@ def loadTheme():
     global __theme
     global __themedir
 
-    settings.beginGroup("theme")
-    loaded = settings.value("theme/name")
-    settings.endGroup()
+    loaded = cfg.theme.name.get()
     logger.debug("Loaded Theme: " + str(loaded))
 
     setTheme(loaded, False)
@@ -221,10 +210,8 @@ def setTheme(theme, restart=True):
             logger.error("Theme not found: " + theme + " in directory " + test_dir)
 
             #Save theme setting
-    settings.beginGroup("theme")
-    settings.setValue("theme/name", __theme)
-    settings.endGroup()
-    settings.sync()
+    cfg.theme.name.set(__theme)
+    Settings.sync()
 
     if restart:
         QtGui.QMessageBox.information(None, "Restart Needed", "FAF will quit now.")
