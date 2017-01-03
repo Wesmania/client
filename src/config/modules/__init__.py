@@ -8,6 +8,7 @@ import lobby
 import maps
 import mods
 import mordor
+import play
 import proxy
 import relay_server
 import replay_server
