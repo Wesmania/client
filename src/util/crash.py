@@ -3,6 +3,7 @@ import config
 import traceback
 import util
 from config import Settings
+from config import modules as cfg
 
 from . import APPDATA_DIR, PERSONAL_DIR, VERSION_STRING, LOG_FILE_FAF, \
     readlines
@@ -112,7 +113,7 @@ class CrashDialog(QtGui.QDialog):
 
     @QtCore.pyqtSlot()
     def tech_support(self):
-        QtGui.QDesktopServices().openUrl(QtCore.QUrl(Settings.get("HELP_URL")))
+        QtGui.QDesktopServices().openUrl(QtCore.QUrl(cfg.url.help.get()))
 
     @QtCore.pyqtSlot()
     def post_report(self):

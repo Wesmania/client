@@ -8,7 +8,6 @@ import chat
 from fa.replay import replay
 import util
 import client
-from config import Settings
 from config import modules as cfg
 
 """
@@ -223,7 +222,7 @@ class Chatter(QtGui.QTableWidgetItem):
         self.setTextColor(QtGui.QColor(chat.get_color("default")))
 
     def viewAliases(self):
-        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(Settings.get("NAME_CHANGE_URL"), self.name)))
+        QtGui.QDesktopServices.openUrl(QUrl("{}?name={}".format(cfg.url.name_change.get(), self.name)))
 
     def selectAvatar(self):
         avatarSelection = avatarWidget(self.lobby.client, self.name, personal=True)

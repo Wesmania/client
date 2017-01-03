@@ -133,19 +133,19 @@ class loginPage(QtGui.QWizardPage):
 
     @QtCore.pyqtSlot()
     def linkAccount(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("STEAMLINK_URL")))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(cfg.url.steamlink.get()))
 
     @QtCore.pyqtSlot()
     def renameAccount(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("NAME_CHANGE_URL")))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(cfg.url.name_change.get()))
 
     @QtCore.pyqtSlot()
     def forgotPassword(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("PASSWORD_RECOVERY_URL")))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(cfg.url.password_recovery.get()))
 
     @QtCore.pyqtSlot()
     def reportBug(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(Settings.get("TICKET_URL")))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(cfg.url.ticket.get()))
 
 class creationAccountWizard(QtGui.QWizard):
     def __init__(self, parent=None):
