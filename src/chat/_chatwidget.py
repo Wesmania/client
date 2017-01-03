@@ -6,7 +6,6 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtNetwork import QNetworkAccessManager
 from PyQt4.QtCore import QSocketNotifier, QTimer
 
-from config import Settings
 from config import modules as cfg
 import util
 
@@ -17,6 +16,8 @@ from chat.channel import Channel
 from chat.irclib import SimpleIRCClient
 import notifications as ns
 
+from config import modules as cfg
+
 PONG_INTERVAL = 60000  # milliseconds between pongs
 
 FormClass, BaseClass = util.loadUiType("chat/chat.ui")
@@ -24,17 +25,12 @@ FormClass, BaseClass = util.loadUiType("chat/chat.ui")
 
 class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
 
-    use_chat = Settings.persisted_property('chat/enabled', type=bool, default_value=True)
-    irc_port = Settings.persisted_property('chat/port', type=int, default_value=6667)
-    irc_host = Settings.persisted_property('chat/host', type=str, default_value='irc.faforever.com')
-    irc_tls = Settings.persisted_property('chat/tls', type=bool, default_value=False)
-
     """
     This is the chat lobby module for the FAF client.
     It manages a list of channels and dispatches IRC events (lobby inherits from irclib's client class)
     """
     def __init__(self, client, *args, **kwargs):
-        if not self.use_chat:
+        if not cfg.chat.enabled.get():
             logger.info("Disabling chat")
             return
 
@@ -97,11 +93,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
     @QtCore.pyqtSlot(object)
     def connect(self, player):
         try:
-            logger.info("Connecting to IRC at: {}:{}. TLS: {}".format(self.irc_host, self.irc_port, self.irc_tls))
-            self.irc_connect(self.irc_host,
-                             self.irc_port,
+            logger.info("Connecting to IRC at: {}:{}. TLS: {}".format(cfg.chat.host.get(), cfg.chat.port.get(), cfg.chat.tls.get()))
+            self.irc_connect(cfg.chat.host.get(),
+                             cfg.chat.port.get(),
                              player.login,
-                             ssl=self.irc_tls,
+                             ssl=cfg.chat.tls.get(),
                              ircname=player.login,
                              username=player.id)
             self._notifier = QSocketNotifier(self.ircobj.connections[0]._get_socket().fileno(), QSocketNotifier.Read, self)
