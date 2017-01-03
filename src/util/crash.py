@@ -49,7 +49,7 @@ class CrashDialog(QtGui.QDialog):
             description += (u"\n**FAF Version:** " + VERSION_STRING)
             description += (u"\n**FAF Environment:** " + config.environment)
             description += (u"\n**FAF Directory:** " + APPDATA_DIR)
-            description += (u"\n**FA Path:** " + str(util.settings.value("ForgedAlliance/app/path", None, type=str)))
+            description += (u"\n**FA Path:** " + cfg.ForgedAlliance.app_path.get("None"))
             description += (u"\n**Home Directory:** " + PERSONAL_DIR)
         except StandardError:
             description += (u"\n**(Exception raised while writing debug vars)**")
