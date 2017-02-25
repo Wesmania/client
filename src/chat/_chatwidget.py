@@ -313,6 +313,11 @@ class ChatWidget(FormClass, BaseClass, SimpleIRCClient):
                 self.channels[channel].removeChatter(name, "quit.")
 
     def on_nick(self, c, e):
+        old_nick = e.source().split["!"][0]
+        new_nick = e.target()
+        for channel in self.channels:
+            channel.removeChatter(old_nick)
+            channel.addChatter(new_nick)
         self.log_event(e)
 
     def on_mode(self, c, e):
