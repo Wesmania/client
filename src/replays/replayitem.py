@@ -64,6 +64,106 @@ class ReplayItemDelegate(QtWidgets.QStyledItemDelegate):
             return QtCore.QSize(215, 35)
 
 
+class Replay():
+    REPLAY_URL = "{}/faf/vault/replay_vault/replay.php?id={}"
+    STILL_PLAYING_TIME = 4294967295
+
+    def __init__(self, uid):
+        self.uid            = uid
+        self.name           = None
+        self.mapname        = None
+        self.mod            = None
+
+        self.startTime      = None
+        self.endTime        = None
+        self.duration       = None
+
+        self.teams          = {}
+        self.players        = []
+
+    def update(self, message):
+        self.name      = message["name"]
+        self.mapname   = message["map"]
+        self.mod       = message["mod"]
+
+        self.startTime = message['start']
+        self.endTime   = message['end'] if message['end'] != self.STILL_PLAYING_TIME else None
+        self.duration  = message["duration"]
+
+    def setPlayers(self, players):
+        self.players = players
+        self.setPlayerTeams()
+
+    def setPlayerTeams(self):
+        if self.mod == "phantomx" or self.mod == "murderparty":
+            self.teams = {1: list(self.players)}
+            return
+
+        for player in self.players:  # player -> teams & playerscore -> teamscore
+            team = int(player["team"])
+            teamlist = self.teams.setdefault(team, [])
+            teamlist.append(player)
+
+        if len(self.players) == len(self.teams):  # some kind of FFA
+            self.teams = {1: list(self.players)}
+
+    def isFFA(self):
+        return len(self.teams) == 1
+
+    def getMVP(self):
+        score = lambda p: int(p["score"]) if "score" in p else None
+        scores = [(player, score(player)) for player in self.players]
+        return max(scores, key = lambda t: t[1])[0]
+
+    def getMVT(self):
+        score = lambda p: int(p["score"]) if "score" in p else 0
+        scores = [(team, sum(score(player) for player in self.teams[team])) for team in self.teams]
+        return max(scores, key = lambda t: t[1])[0]
+
+    def getFaction(self, player):
+        FAF_factions = {
+            1: "UEF",
+            2: "Aeon",
+            3: "Cybran",
+            4: "Seraphim",
+            5: "Random",
+        }
+        Nomad_factions = {
+            1: "UEF",
+            2: "Aeon",
+            3: "Cybran",
+            4: "Seraphim",
+            5: "Nomads",
+            6: "Random",
+        }
+
+        if self.mod == "nomads":
+            factions = Nomad_factions
+        else:
+            factions = FAF_factions
+
+        if "faction" not in player:
+            return "Missing"
+
+        return factions.get(player["faction"], "Broken")
+
+    def getBiggestTeamSize(self):
+        return max([len(team) for team in self.teams.values()] + [0])
+
+    def getUrl(self, host):
+        return self.REPLAY_URL.format(host, self.uid)
+
+    @property
+    def modString(self):
+        if self.mod in mods:
+            return mods[self.mod].name
+        return self.mod
+
+    @property
+    def mapString(self):
+        return maps.getDisplayName(self.mapname)
+
+
 class ReplayItem(QtWidgets.QTreeWidgetItem):
     # list element
     FORMATTER_REPLAY                = str(util.readfile("replays/formatters/replay.qthtml"))
