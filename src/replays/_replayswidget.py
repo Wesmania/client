@@ -143,7 +143,7 @@ class ReplaysWidget(BaseClass, FormClass):
             if hasattr(item, "moreInfo"):
                 if item.moreInfo is False:
                     self.connectToReplayVault()
-                    self.send(dict(command="info_replay", uid=item.uid))
+                    self.send(dict(command="info_replay", uid=item.replay.uid))
                 elif item.spoiled != self.spoilerCheckbox.isChecked():
                     self.replayInfos.clear()
                     self.replayInfos.setHtml(item.replayInfo)
