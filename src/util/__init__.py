@@ -645,7 +645,7 @@ def password_hash(password):
 
 def md5text(text):
     m = hashlib.md5()
-    m.update(text)
+    m.update(text.encode('utf-8'))
     return m.hexdigest()
 
 
