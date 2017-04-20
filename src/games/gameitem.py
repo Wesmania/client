@@ -1,6 +1,6 @@
 from PyQt4 import QtCore, QtGui
-import trueskill
-from trueskill import Rating
+# import trueskill
+# from trueskill import Rating
 from fa import maps
 import util
 import os
@@ -237,13 +237,13 @@ class GameItem(QtGui.QListWidgetItem):
         self.nTeams = len(teams)
 
         # Tuples for feeding into trueskill.
-        rating_tuples = []
-        for team in teams:
-            ratings_for_team = [Rating(player.rating_mean, player.rating_deviation) for player in team]
-            rating_tuples.append(tuple(ratings_for_team))
+        # rating_tuples = []
+        # for team in teams:
+        #     ratings_for_team = [Rating(player.rating_mean, player.rating_deviation) for player in team]
+        #     rating_tuples.append(tuple(ratings_for_team))
 
         try:
-            self.gamequality = 100*round(trueskill.quality(rating_tuples), 2)
+            self.gamequality = 100.0 #*round(trueskill.quality(rating_tuples), 2)
         except ValueError:
             self.gamequality = 0
 

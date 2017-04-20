@@ -2,7 +2,7 @@ from . import version
 import os
 import sys
 import logging
-import trueskill
+# import trueskill
 import fafpath
 import traceback
 from PyQt4 import QtCore
@@ -14,7 +14,7 @@ if sys.platform == 'win32':
     import win32security
     from . import admin
 
-trueskill.setup(mu=1500, sigma=500, beta=250, tau=5, draw_probability=0.10)
+# trueskill.setup(mu=1500, sigma=500, beta=250, tau=5, draw_probability=0.10)
 
 _settings = QtCore.QSettings(QtCore.QSettings.IniFormat, QtCore.QSettings.UserScope, "ForgedAllianceForever", "FA Lobby")
 _unpersisted_settings = {}
