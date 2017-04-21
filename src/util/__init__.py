@@ -98,7 +98,7 @@ DOWNLOADING_RES_PIX = {}
 PERSONAL_DIR = str(QDesktopServices.storageLocation(QDesktopServices.DocumentsLocation))
 logger.info('PERSONAL_DIR initial: ' + PERSONAL_DIR)
 try:
-    PERSONAL_DIR = PERSONAL_DIR.decode('ascii')
+    PERSONAL_DIR.encode("ascii")
 
     if not os.path.isdir(PERSONAL_DIR):
         raise Exception('No documents location. Will use APPDATA instead.')

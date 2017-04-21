@@ -1243,7 +1243,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Ensure we have the map
         if "mapname" in message:
-            fa.check.map(message['mapname'], force=True, silent=silent)
+            fa.check.map_(message['mapname'], force=True, silent=silent)
 
         if "sim_mods" in message:
             fa.mods.checkMods(message['sim_mods'])

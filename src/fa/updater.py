@@ -206,7 +206,7 @@ class Updater(QtCore.QObject):
             meta = downloadedfile.info()
 
             #Fix for #241, sometimes the server sends an error and no content-length.
-            file_size = int(meta.getheaders("Content-Length")[0])
+            file_size = int(meta.get_all("Content-Length")[0])
             progress.setMinimum(0)
             progress.setMaximum(file_size)
             progress.setModal(1)

@@ -360,7 +360,7 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         zipwebfile  = urllib.request.urlopen(req)
 
         meta = zipwebfile.info()
-        file_size = int(meta.getheaders("Content-Length")[0])
+        file_size = int(meta.get_all("Content-Length")[0])
         progress.setMinimum(0)
         progress.setMaximum(file_size)
         progress.setModal(1)
