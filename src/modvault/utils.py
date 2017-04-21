@@ -370,7 +370,7 @@ def downloadMod(item): #most of this function is stolen from fa.maps.downloadMap
         progress.show()
 
         #Download the file as a series of 8 KiB chunks, then uncompress it.
-        output = io.StringIO()
+        output = io.BytesIO()
         file_size_dl = 0
         block_sz = 8192       
 
