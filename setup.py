@@ -48,7 +48,7 @@ for module in ["invoke.py", "load_plugin.py"]:
         pass
 
 # Dependencies are automatically detected, but it might need fine tuning.
-import PyQt4.uic
+import PyQt5.uic
 build_exe_options = {
     'include_files': ['res',
                       'imageformats',
