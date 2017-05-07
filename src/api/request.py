@@ -6,7 +6,7 @@ import json
 # Api request that can get queued until we get authorized.
 class ApiRequest(QObject):
     finished = pyqtSignal(object)
-    error = pyqtSignal()
+    error = pyqtSignal(str)
 
     def __init__(self, manager, request, http_op, opname, auth):
         QObject.__init__(self)
@@ -33,14 +33,15 @@ class ApiRequest(QObject):
         try:
             self._manager.oauth.addToken(self._req, self._opname)
         except (TokenExpiredError, InsecureTransportError):
-            self.error.emit()
+            self.error.emit("Oauth expiry / transport error")
             return
         self.send_request()
 
     def on_error(self):
         self._rep.error.disconnect()
         self._rep.finished.disconnect()
-        self.error.emit()
+        data = bytes(self._rep.readAll()).decode("utf-8")
+        self.error.emit("Reply error: " + data)
 
     def on_finish(self):
         try:
@@ -48,12 +49,12 @@ class ApiRequest(QObject):
             resp = json.loads(data)
             self.finished.emit(resp)
         except ValueError:
-            self.error.emit()
+            self.error.emit("Failed to parse json: " + data)
 
 
 class ApiListRequest(QObject):
     finished = pyqtSignal(object)
-    error = pyqtSignal()
+    error = pyqtSignal(str)
 
     def __init__(self, requests, count):
         QObject.__init__(self)
@@ -77,12 +78,12 @@ class ApiListRequest(QObject):
 
     def _at_finished(self, values):
         if not isinstance(values, dict) or "data" not in values:
-            self._at_error()
+            self._at_error("Expected a dict response with data")
             return
         items = values["data"]
 
         if not isinstance(items, list):
-            self._at_error()
+            self._at_error("Data is not a list")
             return
 
         if len(items) == 0:
@@ -98,6 +99,6 @@ class ApiListRequest(QObject):
             return
         self._run_next_req()
 
-    def _at_error(self):
+    def _at_error(self, text):
         self._nextreq = None
-        self.error.emit()
+        self.error.emit(text)
