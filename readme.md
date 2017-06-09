@@ -50,10 +50,14 @@ By contributing, you agree to license your work to the FAForever project in such
 
 Small fixes by contributors who "own" (have recently made commits on) the part of the project they are making changes on may be fast-tracked, but when in doubt open at least a PR with a descriptive title **and** description.
 
+Running on Windows
+-------
+
+https://github.com/faforever/client/wiki/Windows-Dev-Environment-with-Miniconda
 
 Running on Linux
 -------
-This guide is about runnning the client from source repository. For a [ready-made Arch-Linux package](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=python2-fafclient) [follow the instructions in the wiki](http://wiki.faforever.com/index.php?title=Setting_Up_FAF_Linux).
+This guide is about runnning the client from source repository. For a [ready-made Arch-Linux package](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=python-fafclient) [follow the instructions in the wiki](http://wiki.faforever.com/index.php?title=Setting_Up_FAF_Linux).
 
 Clone this repository locally:
 
