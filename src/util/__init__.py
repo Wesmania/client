@@ -690,7 +690,7 @@ def uniqueID(user, session):
                 logger.error(line)
             return None
         else:
-            return out
+            return out.decode('utf-8')
     except OSError as err:
         logger.error("UniqueID error finding the executable: {}".format(err))
         return None
