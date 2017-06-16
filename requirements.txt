@@ -1,6 +1,5 @@
 cx_Freeze
 lupa
-pillow==3.4.1
 git+https://github.com/FAForever/faftools.git@develop#egg=faftools
 ipaddress
 pathlib
