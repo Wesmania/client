@@ -1,19 +1,18 @@
-from oauthlib.oauth2 import LegacyApplicationClient, OAuth2Error, \
-    TokenExpiredError
+from oauthlib.oauth2 import LegacyApplicationClient, OAuth2Error, TokenExpiredError
 from PyQt5 import QtNetwork
 from PyQt5.QtCore import QObject, pyqtSignal, QUrl
 import base64
 import json
-from request import ApiRequest
+from .request import ApiRequest
 
 
 class ApiSettings(object):
     def __init__(self, settings):
-        API_P = "api/"
-        self.baseUrl = settings.get(API_P + "baseUrl")
-        self.clientId = bytes(settings.get(API_P + "clientId"))
-        self.clientSecret = bytes(settings.get(API_P + "clientSecret"))
-        self.accessTokenUri = settings.get(API_P + "accessTokenUri")
+        api_p = "api/"
+        self.baseUrl = settings.get(api_p + "baseUrl")
+        self.clientId = bytes(settings.get(api_p + "clientId"))
+        self.clientSecret = bytes(settings.get(api_p + "clientSecret"))
+        self.accessTokenUri = settings.get(api_p + "accessTokenUri")
 
 
 class OAuthHandler(object):
@@ -31,11 +30,11 @@ class OAuthHandler(object):
         self._rep = None
 
     @property
-    def apiManager(self):
+    def api_manager(self):
         return self._manager
 
-    @apiManager.setter
-    def apiManager(self, manager):
+    @api_manager.setter
+    def api_manager(self, manager):
         self._manager = manager
 
     def authorize(self, username, password):
@@ -44,7 +43,7 @@ class OAuthHandler(object):
                       'application/x-www-form-urlencoded')
         req.setRawHeader(b'Accept', b'application/json')
         h_auth = b"Basic " + base64.b64encode(self._settings.clientId + b":" +
-                                             self._settings.clientSecret)
+                                              self._settings.clientSecret)
         req.setRawHeader(b'Authorization', h_auth)
 
         body = bytes(self._client.prepare_request_body(
@@ -52,26 +51,26 @@ class OAuthHandler(object):
             password=password), "utf-8")
         self._rep = self._manager.post(QUrl(self._settings.accessTokenUri),
                                        req, body, auth=False)
-        self._rep.finished.connect(self._onAuthorizedResponse)
-        self._rep.error.connect(self._onError)
+        self._rep.finished.connect(self._on_authorized_response)
+        self._rep.error.connect(self._on_error)
         self._rep.run()
 
-    def _onError(self, text):
+    def _on_error(self, text):
         self._rep = None
-        self._manager.onAuthorizeError(text)
+        self._manager.on_authorize_error(text)
 
-    def _onAuthorizedResponse(self, reply):
+    def _on_authorized_response(self, reply):
         self._rep = None
         try:
             body = json.dumps(reply)    # FIXME
             self._client.parse_request_body_response(body)
         except OAuth2Error:
-            return self._onError("Failed to parse oauth: " + json.dumps(reply))
+            return self._on_error("Failed to parse oauth: " + json.dumps(reply))
 
         self._hasToken = True
-        self._manager.onAuthorized()
+        self._manager.on_authorized()
 
-    def addToken(self, request, http_method):
+    def add_token(self, request, http_method):
         """
         Adds the token to request headers. If the token expired, does not
         modify request.
@@ -91,7 +90,7 @@ class OAuthHandler(object):
         for hname in auth_header:
             request.setRawHeader(bytes(hname, "utf-8"), bytes(auth_header[hname], "utf-8"))
 
-    def hasToken(self):
+    def has_token(self):
         return self._hasToken
 
 
@@ -107,27 +106,27 @@ class ApiManager(QObject):
         self._network_manager = network_manager
         self._settings = settings
         self.oauth = oauth
-        self.oauth.apiManager = self
+        self.oauth.api_manager = self
         self._ssl_conf = QtNetwork.QSslConfiguration()
         self._ssl_conf.setProtocol(QtNetwork.QSsl.TlsV1_2OrLater)
 
     def authorize(self, username, password):
         self.oauth.authorize(username, password)
 
-    def onAuthorized(self):
+    def on_authorized(self):
         self.authorized.emit()
 
     def is_authorized(self):
-        return self.oauth.hasToken()
+        return self.oauth.has_token()
 
-    def onAuthorizeError(self, text):     # TODO
+    def on_authorize_error(self, text):     # TODO
         print(text)
 
-    def _op(self, endpoint, request, httpOp, opName, auth=True):
+    def _op(self, endpoint, request, http_op, op_name, auth=True):
         request.setUrl(QUrl(self._settings.baseUrl).resolved(endpoint))
         request.setSslConfiguration(self._ssl_conf)
 
-        return ApiRequest(self, request, httpOp, opName, auth)
+        return ApiRequest(self, request, http_op, op_name, auth)
 
     def get(self, endpoint, request, auth=True):
         return self._op(endpoint, request, self._network_manager.get, "GET",
@@ -147,7 +146,7 @@ class ApiManager(QObject):
 
 from PyQt5.QtWidgets import QApplication
 import sys
-import api
+from .api import Api
 
 
 class MockSettings(object):
@@ -162,24 +161,24 @@ LOGIN = "YourLogin"
 PASSWORD = "YourPassword"
 
 
-def doTest(body):
+def do_test(body):
     print("Received!")
     print(body)
     sys.exit(0)
 
 
-def testLogin():
+def test_login():
     a = QApplication([])
     settings = MockSettings()
     oauth = OAuthHandler(settings)
     am = QtNetwork.QNetworkAccessManager()
     manager = ApiManager(am, settings, oauth)
     manager.authorize(LOGIN, PASSWORD)
-    faf_api = api.Api(manager)
-    req = faf_api._getAll("/data/featuredMod")
-    req.finished.connect(doTest)
+    faf_api = Api(manager)
+    req = faf_api._get_all("/data/featuredMod")
+    req.finished.connect(do_test)
     req.run()
     a.exec_()
 
 if __name__ == "__main__":
-    testLogin()
+    test_login()

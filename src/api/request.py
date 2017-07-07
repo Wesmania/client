@@ -33,7 +33,7 @@ class ApiRequest(QObject):
     def at_auth(self):
         self._manager.authorized.disconnect(self.at_auth)
         try:
-            self._manager.oauth.addToken(self._req, self._opname)
+            self._manager.oauth.add_token(self._req, self._opname)
         except (TokenExpiredError, InsecureTransportError):
             self.error.emit("Oauth expiry / transport error")
             return

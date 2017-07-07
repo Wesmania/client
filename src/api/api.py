@@ -1,6 +1,6 @@
 from PyQt5 import QtNetwork
 from PyQt5.QtCore import QUrl, QUrlQuery
-from request import ApiListRequest
+from .request import ApiListRequest
 
 
 class Api(object):
@@ -22,19 +22,19 @@ class Api(object):
         query = self._query(endpoint, params)
         return self._manager.get(query, req)
 
-    def _getPage(self, endpoint, pagesize, pagenum, params={}):
+    def _get_page(self, endpoint, pagesize, pagenum, params={}):
         params["page[size]"] = pagesize
         params["page[number]"] = pagenum
         return self._get(endpoint, params)
 
-    def _getMany(self, endpoint, count, params={}):
-        def getReqs():
+    def _get_many(self, endpoint, count, params={}):
+        def get_reqs():
             for i in range(1, count + 1):
-                yield self._getPage(QUrl(endpoint), count, i, params)
-        return ApiListRequest(getReqs(), count)
+                yield self._get_page(QUrl(endpoint), count, i, params)
+        return ApiListRequest(get_reqs(), count)
 
-    def _getAll(self, endpoint, params={}):
-        return self._getMany(endpoint, self.MAX_PAGE_SIZE, params)
+    def _get_all(self, endpoint, params={}):
+        return self._get_many(endpoint, self.MAX_PAGE_SIZE, params)
 
     def _post(self, endpoint, data):
         req = QtNetwork.QNetworkRequest()
