@@ -524,7 +524,7 @@ class ClientWindow(FormClass, BaseClass):
         self.loadSettings()
 
         # Initialize chat
-        self.chat = chat.Lobby(self)
+        self.chat = chat.Lobby(self, self.players)
 
         # build main window with the now active client
         self.news = news.NewsWidget(self)
