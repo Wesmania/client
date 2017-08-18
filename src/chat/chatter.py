@@ -5,6 +5,7 @@ from chat._avatarWidget import AvatarWidget
 import time
 import urllib.request, urllib.error, urllib.parse
 from fa.replay import replay
+from fa.maps import getDisplayName
 import util
 import client
 from config import Settings
@@ -291,15 +292,30 @@ class Chatter(QtWidgets.QTableWidgetItem):
     def updateGame(self):
         # Status icon handling
         game = self.user_game
-        player = self.user_player
         if game is not None and not game.closed():
-            url = game.url(player.id)
+            game_str = "<br/>title: " + game.title + "<br/>mod: " + game.featured_mod + "<br/>map: " + \
+                       getDisplayName(game.mapname) + "<br/>id: " + str(game.uid)
             if game.state == GameState.OPEN:
-                self.statusItem.setIcon(util.THEME.icon("chat/status/lobby.png"))
-                self.statusItem.setToolTip("In Game Lobby<br/>"+url.toString())
+                if game.password_protected:
+                    game_str = " (private) Game Lobby:</b>" + game_str
+                else:
+                    game_str = " Game Lobby:</b>" + game_str
+                if game.host == self._user_player.login:
+                    icon_str, tooltip_str = "host", "<b>Hosting"
+                else:
+                    icon_str, tooltip_str = "lobby", "<b>In"
             elif game.state == GameState.PLAYING:
-                self.statusItem.setIcon(util.THEME.icon("chat/status/playing.png"))
-                self.statusItem.setToolTip("Playing Game<br/>"+url.toString())
+                run_time = time.time() - game.launched_at
+                if run_time > 5 * 60:
+                    icon_str, tooltip_str = "playing", "<b>Playing:</b>"
+                else:
+                    icon_str, tooltip_str = "playing5", "<b>Playing:</b>" + "   LIVE DELAY (5 Min)"
+                    QtCore.QTimer().singleShot(1000 * (1 + 5 * 60 - run_time), self.updateGame)
+
+            else:
+                icon_str, tooltip_str = "unknown", "Game status unknown"
+            self.statusItem.setIcon(util.THEME.icon("chat/status/{}.png".format(icon_str)))
+            self.statusItem.setToolTip(tooltip_str + game_str)
         else:
             self.statusItem.setIcon(QtGui.QIcon())
             self.statusItem.setToolTip("Idle")
