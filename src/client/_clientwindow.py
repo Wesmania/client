@@ -34,6 +34,14 @@ from ui.busy_widget import BusyWidget
 
 from client.playercolors import PlayerColors
 from client.gameannouncer import GameAnnouncer
+
+import sys
+if sys.platform == 'win32':
+    import ctypes
+    import win32gui
+    import win32api
+    import win32con
+
 '''
 Created on Dec 1, 2011
 
@@ -53,7 +61,6 @@ import util
 import secondaryServer
 
 import json
-import sys
 import replays
 
 import time
@@ -384,6 +391,19 @@ class ClientWindow(FormClass, BaseClass):
 
         return False
 
+    # Fixes fullscreen client and game clashing due to broken Windows compositor
+    def enable_fullscreen_border(self, enable):
+        if sys.platform != 'win32':
+            return
+
+        handle = win32gui.GetWindowDC(self.winId())
+        flags = win32api.GetWindowLong(handle, win32con.GWL_STYLE)
+        if enable:
+            flags = flags | win32con.WS_BORDER
+        else:
+            flags = flags & (~win32con.WS_BORDER)
+        win32api.SetWindowLong(handle, win32con.GWL_STYLE, flags)
+
     def updateCursorShape(self, pos):
         if self.mousePosition.onTopLeftEdge or self.mousePosition.onBottomRightEdge:
             self.mousePosition.cursorShapeChange = True
@@ -415,6 +435,7 @@ class ClientWindow(FormClass, BaseClass):
             self.maxNormal = True
             self.curSize = self.geometry()
             self.setGeometry(QtWidgets.QDesktopWidget().availableGeometry(self))
+        self.enable_fullscreen_border(self.maxNormal)
 
     def mouseDoubleClickEvent(self, event):
         self.showMaxRestore()
@@ -593,6 +614,8 @@ class ClientWindow(FormClass, BaseClass):
         self.warnPlayer.setProperty("warning", True)
         self.warning.addStretch()
         self.warning.addWidget(self.warnPlayer)
+
+        self.enable_fullscreen_border(self.maxNormal)
 
         def add_warning_button(faction):
             button = QtWidgets.QToolButton(self)
