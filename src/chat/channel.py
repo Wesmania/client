@@ -371,16 +371,17 @@ class Channel(FormClass, BaseClass):
         if QtWidgets.QApplication.mouseButtons() == QtCore.Qt.RightButton:
             # Look up the associated chatter object
             chatter = self.nickList.item(item.row(), Chatter.SORT_COLUMN)
-            chatter.pressed(item)
+            chatter.contextMenu(self.nickList)
 
     def addChatter(self, chatter, join=False):
         """
         Adds an user to this chat channel, and assigns an appropriate icon depending on friendship and FAF player status
         """
         if chatter not in self.chatters:
-            item = Chatter(self.nickList, chatter, self,
+            item = Chatter(chatter, self,
                            self.chat_widget, self._me)
             self.chatters[chatter] = item
+            self._insertChatter(item)
 
         self.chatters[chatter].update()
 
@@ -388,6 +389,15 @@ class Channel(FormClass, BaseClass):
 
         if join and self.chat_widget.client.joinsparts:
             self.printAction(chatter.name, "joined the channel.", server_action=True)
+
+    def _insertChatter(self, chatter):
+        row = self.nickList.rowCount()
+        self.nickList.insertRow(row)
+        self.nickList.setItem(row, Chatter.SORT_COLUMN, chatter)
+        row = chatter.row()
+        self.nickList.setItem(row, Chatter.RANK_COLUMN, chatter.rankItem)
+        self.nickList.setItem(row, Chatter.AVATAR_COLUMN, chatter.avatarItem)
+        self.nickList.setItem(row, Chatter.STATUS_COLUMN, chatter.statusItem)
 
     def removeChatter(self, chatter, server_action=None):
         if chatter in self.chatters:

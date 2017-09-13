@@ -30,12 +30,11 @@ class Chatter(QtWidgets.QTableWidgetItem):
     RANK_NONPLAYER = 3
     RANK_FOE = 4
 
-    def __init__(self, parent, user, channel, chat_widget, me):
+    def __init__(self, user, channel, chat_widget, me):
         QtWidgets.QTableWidgetItem.__init__(self, None)
 
         # TODO: for now, userflags and ranks aren't properly interpreted :-/
         # This is impractical if an operator reconnects too late.
-        self.parent = parent
         self.chat_widget = chat_widget
         self.channel = channel
 
@@ -64,15 +63,6 @@ class Chatter(QtWidgets.QTableWidgetItem):
         self._user_game = None
         # This updates the above three and the widget
         self.user = user
-
-        row = self.parent.rowCount()
-        self.parent.insertRow(row)
-
-        self.parent.setItem(row, Chatter.SORT_COLUMN, self)
-
-        self.parent.setItem(self.row(), Chatter.RANK_COLUMN, self.rankItem)
-        self.parent.setItem(self.row(), Chatter.AVATAR_COLUMN, self.avatarItem)
-        self.parent.setItem(self.row(), Chatter.STATUS_COLUMN, self.statusItem)
 
     @property
     def user(self):
@@ -357,8 +347,8 @@ class Chatter(QtWidgets.QTableWidgetItem):
         elif game.state == GameState.PLAYING:
             self.viewReplay(url)
 
-    def pressed(self, item):
-        menu = QtWidgets.QMenu(self.parent)
+    def contextMenu(self, parent):
+        menu = QtWidgets.QMenu(parent)
 
         def menu_add(action_str, action_connect, separator=False):
             if separator:
