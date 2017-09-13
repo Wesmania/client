@@ -53,6 +53,83 @@ class ScheduledCall(QtCore.QObject):
         self._fn()
 
 
+class ChatLog:
+    def __init__(self, widget, client):
+        self._w = widget
+        self._w.anchorClicked.connect(self.openUrl)
+        self._client = client
+
+        self.lines = 0
+        self.snap_to_bottom_threshold = 20
+        self.max_lines = 350
+        self.autotrim_block_size = 50
+
+    def addLine(self, text):
+        current_distance = self.scrollDistanceFromBottom()
+        cursor = self._w.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.End)
+        self._w.setTextCursor(cursor)
+        self._w.insertHtml(text)
+        self.lines += 1
+        self._check_autoscroll(current_distance)
+        self._check_autotrim()
+
+    def removeLines(self, number):
+        lines_to_remove = min(number, self.lines)
+        cursor = self._w.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.Start)
+        cursor.movePosition(QtGui.QTextCursor.Down,
+                            QtGui.QTextCursor.KeepAnchor, lines_to_remove)
+        cursor.removeSelectedText()
+        self.lines -= lines_to_remove
+
+    def scrollDistanceFromBottom(self):
+        scrollbar = self._w.verticalScrollBar()
+        return scrollbar.maximum() - scrollbar.value()
+
+    def scrollToBottom(self):
+        scrollbar = self._w.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+
+    def clear(self):
+        self._w.setPlainText("")
+        self.lines = 0
+
+    def _check_autoscroll(self, old_distance):
+        if self.snap_to_bottom_threshold is None:
+            return
+        if old_distance <= self.snap_to_bottom_threshold:
+            self.scrollToBottom()
+
+    def _check_autotrim(self):
+        if self.max_lines is None:
+            return
+        if self.lines > self.max_lines:
+            self.removeLines(self.autotrim_block_size)
+
+    def addAvatar(self, name, icon):
+        doc = self._w.document()
+        name_url = QtCore.QUrl(name)
+        if doc.resource(QtGui.QTextDocument.ImageResource, name_url):
+            return
+        doc.addResource(QtGui.QTextDocument.ImageResource, name_url, icon)
+
+    def openUrl(self, url):
+        logger.debug("Clicked on URL: " + url.toString())
+        if url.scheme() == "faflive":
+            replay(url)
+        elif url.scheme() == "fafgame":
+            self._client.joinGameFromURL(url)
+        else:
+            QtGui.QDesktopServices.openUrl(url)
+
+    def copy(self):
+        self._w.copy()
+
+    def setTextWidth(self):
+        self._w.setLineWrapColumnOrWidth(self._w.size().width() - 20)  # Hardcoded, but seems to be enough (tabstop was a bit large)
+
+
 class Channel(FormClass, BaseClass):
     """
     This is an actual chat channel object, representing an IRC chat room and the users currently present.
@@ -64,6 +141,7 @@ class Channel(FormClass, BaseClass):
 
         # Special HTML formatter used to layout the chat lines written by people
         self.chat_widget = chat_widget
+        self.chat_log = ChatLog(self.chatArea, chat_widget.client)
         self.chatters = {}
         self.items = {}
         self._chatterset = chatterset
@@ -79,9 +157,6 @@ class Channel(FormClass, BaseClass):
 
         # Table width of each chatter's name cell...
         self.maxChatterWidth = 100  # TODO: This might / should auto-adapt
-
-        # count the number of line currently in the chat
-        self.lines = 0
 
         # Perform special setup for public channels as opposed to private ones
         self.name = name
@@ -111,7 +186,6 @@ class Channel(FormClass, BaseClass):
             self.nickFrame.hide()
             self.announceLine.hide()
 
-        self.chatArea.anchorClicked.connect(self.openUrl)
         self.chatEdit.returnPressed.connect(self.sendLine)
         self.chatEdit.setChatters(self.chatters)
 
@@ -129,25 +203,20 @@ class Channel(FormClass, BaseClass):
         Allow the ctrl-C event.
         """
         if keyevent.key() == 67:
-            self.chatArea.copy()
+            self.chat_log.copy()
 
     def resizeEvent(self, size):
         BaseClass.resizeEvent(self, size)
-        self.setTextWidth()
-
-    def setTextWidth(self):
-        self.chatArea.setLineWrapColumnOrWidth(self.chatArea.size().width() - 20)  # Hardcoded, but seems to be enough (tabstop was a bit large)
+        self.chat_log.setTextWidth()
 
     def showEvent(self, event):
         self.stopBlink()
-        self.setTextWidth()
+        self.chat_log.setTextWidth()
         return BaseClass.showEvent(self, event)
 
-    @QtCore.pyqtSlot()
-    def clearWindow(self):
-        if self.isVisible():
-            self.chatArea.setPlainText("")
-            self.last_timestamp = 0
+    def clear(self):
+        self.chat_log.clear()
+        self.last_timestamp = 0
 
     @QtCore.pyqtSlot()
     def filterNicks(self):
@@ -192,42 +261,16 @@ class Channel(FormClass, BaseClass):
             if not self.blinker.isActive() and not self == self.chat_widget.currentWidget():
                 self.startBlink()
 
-    @QtCore.pyqtSlot(QtCore.QUrl)
-    def openUrl(self, url):
-        logger.debug("Clicked on URL: " + url.toString())
-        if url.scheme() == "faflive":
-            replay(url)
-        elif url.scheme() == "fafgame":
-            self.chat_widget.client.joinGameFromURL(url)
-        else:
-            QtGui.QDesktopServices.openUrl(url)
-
-    def printAnnouncement(self, text, color, size, scroll_forced = True):
-        # scroll if close to the last line of the log
-        scroll_current = self.chatArea.verticalScrollBar().value()
-        scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
-
-        cursor = self.chatArea.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
-        self.chatArea.setTextCursor(cursor)
-
+    def printAnnouncement(self, text, color, size, scroll_forced=True):
+        text = util.irc_escape(text, self.chat_widget.a_style)
         formatter = Formatters.FORMATTER_ANNOUNCEMENT
-        line = formatter.format(size=size, color=color, text=util.irc_escape(text, self.chat_widget.a_style))
-        self.chatArea.insertHtml(line)
+        line = formatter.format(size=size, color=color, text=text)
+        self.chat_log.addLine(line)
+        if scroll_forced:
+            self.chat_log.scrollToBottom()
 
-        if scroll_needed:
-            self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
-        else:
-            self.chatArea.verticalScrollBar().setValue(scroll_current)
-
-    def printLine(self, chname, text, scroll_forced=False, formatter=Formatters.FORMATTER_MESSAGE):
-        if self.lines > CHAT_TEXT_LIMIT:
-            cursor = self.chatArea.textCursor()
-            cursor.movePosition(QtGui.QTextCursor.Start)
-            cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.KeepAnchor, CHAT_REMOVEBLOCK)
-            cursor.removeSelectedText()
-            self.lines = self.lines - CHAT_REMOVEBLOCK
-
+    def printLine(self, chname, text, scroll_forced=False,
+                  formatter=Formatters.FORMATTER_MESSAGE):
         chatter = self._chatterset.get(chname)
         if chatter is not None and chatter.player is not None:
             player = chatter.player
@@ -259,34 +302,26 @@ class Channel(FormClass, BaseClass):
         if mentioned:
             color = self.chat_widget.client.player_colors.getColor("you")
 
-        # scroll if close to the last line of the log
-        scroll_current = self.chatArea.verticalScrollBar().value()
-        scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
-
-        cursor = self.chatArea.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
-        self.chatArea.setTextCursor(cursor)
-
+        text = util.irc_escape(text, self.chat_widget.a_style)
         line = None
         if avatar is not None:
             pix = util.respix(avatar)
             if pix:
-                if not self.chatArea.document().resource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(avatar)):
-                    self.chatArea.document().addResource(QtGui.QTextDocument.ImageResource,  QtCore.QUrl(avatar), pix)
-                line = formatter.format(time=self.timestamp(), avatar=avatar, avatarTip=avatarTip, name=displayName,
-                                        color=color, width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
+                self.chat_log.addAvatar(avatar, pix)
+                line = formatter.format(time=self.timestamp(), avatar=avatar,
+                                        avatarTip=avatarTip, name=displayName,
+                                        color=color, width=self.maxChatterWidth,
+                                        text=text)
         if line is None:
             formatter = Formatters.FORMATTER_MESSAGE
-            line = formatter.format(time=self.timestamp(), name=displayName, color=color,
-                                    width=self.maxChatterWidth, text=util.irc_escape(text, self.chat_widget.a_style))
+            line = formatter.format(time=self.timestamp(), name=displayName,
+                                    color=color, width=self.maxChatterWidth,
+                                    text=text)
 
-        self.chatArea.insertHtml(line)
-        self.lines += 1
+        self.chat_log.addLine(line)
 
-        if scroll_needed:
-            self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
-        else:
-            self.chatArea.verticalScrollBar().setValue(scroll_current)
+        if scroll_forced:
+            self.chat_log.scrollToBottom()
 
     def _chname_has_avatar(self, chname):
         if chname not in self._chatterset:
@@ -317,7 +352,7 @@ class Channel(FormClass, BaseClass):
 
     def printRaw(self, chname, text, scroll_forced=False):
         """
-        Print an raw message in the chatArea of the channel
+        Print an raw message in the chat log of the channel
         """
         chatter = self._chatterset.get(chname)
         try:
@@ -331,22 +366,14 @@ class Channel(FormClass, BaseClass):
         if self.private and chname != self.chat_widget.client.login:
             self.pingWindow()
 
-        # scroll if close to the last line of the log
-        scroll_current = self.chatArea.verticalScrollBar().value()
-        scroll_needed = scroll_forced or ((self.chatArea.verticalScrollBar().maximum() - scroll_current) < 20)
-
-        cursor = self.chatArea.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
-        self.chatArea.setTextCursor(cursor)
-
         formatter = Formatters.FORMATTER_RAW
-        line = formatter.format(time=self.timestamp(), name=chname, color=color, width=self.maxChatterWidth, text=text)
-        self.chatArea.insertHtml(line)
+        line = formatter.format(time=self.timestamp(), name=chname,
+                                color=color, width=self.maxChatterWidth,
+                                text=text)
+        self.chat_log.addLine(line)
 
-        if scroll_needed:
-            self.chatArea.verticalScrollBar().setValue(self.chatArea.verticalScrollBar().maximum())
-        else:
-            self.chatArea.verticalScrollBar().setValue(scroll_current)
+        if scroll_forced:
+            self.chat_log.scrollToBottom()
 
     def timestamp(self):
         """ returns a fresh timestamp string once every minute, and an empty string otherwise """
