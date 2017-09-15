@@ -23,13 +23,20 @@ class IRCPlayer():
 
 
 class Formatters(object):
+    FORMATTER_AVATAR         = str(util.THEME.readfile("chat/formatters/avatar.qthtml"))
     FORMATTER_ANNOUNCEMENT   = str(util.THEME.readfile("chat/formatters/announcement.qthtml"))
     FORMATTER_MESSAGE        = str(util.THEME.readfile("chat/formatters/message.qthtml"))
-    FORMATTER_MESSAGE_AVATAR = str(util.THEME.readfile("chat/formatters/messageAvatar.qthtml"))
     FORMATTER_ACTION         = str(util.THEME.readfile("chat/formatters/action.qthtml"))
-    FORMATTER_ACTION_AVATAR  = str(util.THEME.readfile("chat/formatters/actionAvatar.qthtml"))
     FORMATTER_RAW            = str(util.THEME.readfile("chat/formatters/raw.qthtml"))
     NICKLIST_COLUMNS         = json.loads(util.THEME.readfile("chat/formatters/nicklist_columns.json"))
+
+    @classmethod
+    def format(cls, fmt, avatar, **kwargs):
+        if avatar is None:
+            avatar_img = ""
+        else:
+            avatar_img = cls.FORMATTER_AVATAR.format(avatar=avatar, **kwargs)
+        return fmt.format(avatar=avatar_img, **kwargs)
 
 
 # Helper class to schedule single event loop calls.
@@ -303,21 +310,18 @@ class Channel(FormClass, BaseClass):
             color = self.chat_widget.client.player_colors.getColor("you")
 
         text = util.irc_escape(text, self.chat_widget.a_style)
-        line = None
+
+        avatar_img = None
         if avatar is not None:
             pix = util.respix(avatar)
             if pix:
                 self.chat_log.addAvatar(avatar, pix)
-                line = formatter.format(time=self.timestamp(), avatar=avatar,
-                                        avatarTip=avatarTip, name=displayName,
-                                        color=color, width=self.maxChatterWidth,
-                                        text=text)
-        if line is None:
-            formatter = Formatters.FORMATTER_MESSAGE
-            line = formatter.format(time=self.timestamp(), name=displayName,
-                                    color=color, width=self.maxChatterWidth,
-                                    text=text)
+                avatar_img = avatar
 
+        line = Formatters.format(formatter, avatar=avatar,
+                                 time=self.timestamp(), avatarTip=avatarTip,
+                                 name=displayName, color=color,
+                                 width=self.maxChatterWidth, text=text)
         self.chat_log.addLine(line)
 
         if scroll_forced:
@@ -335,17 +339,12 @@ class Channel(FormClass, BaseClass):
         return True
 
     def printMsg(self, chname, text, scroll_forced=False):
-        if self._chname_has_avatar(chname):
-            fmt = Formatters.FORMATTER_MESSAGE_AVATAR
-        else:
-            fmt = Formatters.FORMATTER_MESSAGE
-        self.printLine(chname, text, scroll_forced, fmt)
+        self.printLine(chname, text, scroll_forced,
+                       Formatters.FORMATTER_MESSAGE)
 
     def printAction(self, chname, text, scroll_forced=False, server_action=False):
         if server_action:
             fmt = Formatters.FORMATTER_RAW
-        elif self._chname_has_avatar(chname):
-            fmt = Formatters.FORMATTER_ACTION_AVATAR
         else:
             fmt = Formatters.FORMATTER_ACTION
         self.printLine(chname, text, scroll_forced, fmt)
