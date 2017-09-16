@@ -7,6 +7,7 @@ from chat import logger
 from chat.chatter import Chatter
 import re
 import json
+import html
 
 QUERY_BLINK_SPEED = 250
 CHAT_TEXT_LIMIT = 350
@@ -135,6 +136,73 @@ class ChatLog:
 
     def setTextWidth(self):
         self._w.setLineWrapColumnOrWidth(self._w.size().width() - 20)  # Hardcoded, but seems to be enough (tabstop was a bit large)
+
+
+class FormattedText:
+    """
+    Qt has Qfont for that, but it can't be conveniently used with Python's
+    string formatting, so let's roll our own.
+    """
+    def __init__(self, properties={}):
+        self.properties = properties
+
+    def copy(self):
+        return FormattedText(self.properties.copy())
+
+    def update(self, properties):
+        self.properties.update(properties)
+
+    def _css_property(self, name, value):
+        name = html.escape(name, True)
+        value = html.escape(value, True)
+        return "{}='{}';".format(name, value)
+
+    def _css_style(self):
+        return "".join(
+                self._css_property(n, v) for n, v in self.properties.items())
+
+    def format(self, text):
+        return '<p style="{}">{}</p>'.format(self._css_style(), text)
+
+
+class ChatLineFormat:
+    FORMATTER = str(util.THEME.readfile("chat/formatters/chatline.qthtml"))
+
+    def __init__(self, name_format=None, text_format=None, time_format=None):
+        self.name_format = (name_format if name_format is not None
+                            else FormattedText())
+        self.text_format = (text_format if text_format is not None
+                            else FormattedText())
+        self.time_format = (time_format if time_format is not None
+                            else FormattedText())
+
+    def copy(self):
+        new = ChatLineFormat()
+        new.name_format = self.name_format.copy()
+        new.text_format = self.text_format.copy()
+        new.time_format = self.time_format.copy()
+        return new
+
+    def update(self, fmt):
+        if "name" in fmt:
+            self.name_format.update(fmt["name"])
+        if "text" in fmt:
+            self.text_format.update(fmt["text"])
+        if "time" in fmt:
+            self.time_format.update(fmt["time"])
+
+    def format(self, avatar="", name="", text="", time=""):
+        name = self.name_format.format(name)
+        text = self.text_format.format(text)
+        time = self.time_format.format(time)
+        return self.FORMATTER.format(avatar=avatar, name=name, text=text,
+                                     time=time)
+
+    @classmethod
+    def get_format(cls, name):
+        formats_dir = "chat/formatters/formats/{}.json"
+        fmt = json.loads(util.THEME.readfile(formats_dir.format(name)))
+        return cls(fmt.get["name"], fmt.get["text"], fmt.get["time"])
 
 
 class Channel(FormClass, BaseClass):

@@ -1,0 +1,14 @@
+{
+	"name": {
+		"color": "grey",
+		"width": 100
+	},
+	"text": {
+		"color": "grey",
+		"width": "100%"
+	},
+	"time": {
+		"color": "grey",
+		"width": 32
+	}
+}
