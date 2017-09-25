@@ -50,19 +50,19 @@ class TournamentsWidget(FormClass, BaseClass):
         """
         Slot that attempts to join or leave a tournament.
         """
-        if self.client.login not in item.playersname:
+        if self.client.creds.login not in item.playersname:
             reply = QtWidgets.QMessageBox.question(self.client, "Register",
                                                    "Do you want to register to this tournament ?",
                                                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
             if reply == QtWidgets.QMessageBox.Yes:
-                self.tourneyServer.send(dict(command="add_participant", uid=item.uid, login=self.client.login))
+                self.tourneyServer.send(dict(command="add_participant", uid=item.uid, login=self.client.creds.login))
 
         else:
             reply = QtWidgets.QMessageBox.question(self.client, "Register",
                                                    "Do you want to leave this tournament ?",
                                                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
             if reply == QtWidgets.QMessageBox.Yes:
-                self.tourneyServer.send(dict(command="remove_participant", uid=item.uid, login=self.client.login)) 
+                self.tourneyServer.send(dict(command="remove_participant", uid=item.uid, login=self.client.creds.login)) 
 
     def handle_tournaments_info(self, message):
         #self.tourneyList.clear()

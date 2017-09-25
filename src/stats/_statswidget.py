@@ -134,7 +134,7 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
             rank = val["rank"]
             name = val["name"]
             score = str(val["score"])
-            if self.client.login == name:
+            if self.client.creds.login == name:
                 append(formatter.format(rank=str(rank), name=name, score=score, color="#6CF"))
             elif rank % 2 == 0:
                 append(formatter.format(rank=str(rank), name=name, score=str(val["score"]), color="#F1F1F1"))
@@ -194,7 +194,7 @@ class StatsWidget(BaseClass, FormClass, BusyWidget):
         if self.client.state != client.ClientState.LOGGED_IN:
             return
 
-        me = self.client.players[self.client.login]
+        me = self.client.players[self.client.creds.login]
         if me.league is not None:
             self.leagues.setCurrentIndex(me.league - 1)
         else:

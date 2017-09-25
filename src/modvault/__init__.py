@@ -328,7 +328,7 @@ class ModItem(QtWidgets.QListWidgetItem):
         self.isuimod = dic["ui"]
         self.link = dic["link"]  # Direct link to the zip file.
         self.thumbstr = dic["thumbnail"]  # direct url to the thumbnail file.
-        self.uploadedbyuser = (self.author == self.parent.client.login)
+        self.uploadedbyuser = (self.author == self.parent.client.creds.login)
 
         self.thumbnail = None
         if self.thumbstr == "":

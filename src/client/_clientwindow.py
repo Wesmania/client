@@ -96,6 +96,13 @@ class mousePosition(object):
     def isOnEdge(self):
         return self.onEdges
 
+class UserCredentials:
+    remember = Settings.persisted_property('user/remember', type=bool, default_value=True)
+    login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
+    password = Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
+
+    def __init__(self):
+        pass
 
 class ClientWindow(FormClass, BaseClass):
     """
@@ -120,10 +127,6 @@ class ClientWindow(FormClass, BaseClass):
     channelsUpdated = QtCore.pyqtSignal(list)
 
     matchmakerInfo = QtCore.pyqtSignal(dict)
-
-    remember = Settings.persisted_property('user/remember', type=bool, default_value=True)
-    login = Settings.persisted_property('user/login', persist_if=lambda self: self.remember)
-    password = Settings.persisted_property('user/password', persist_if=lambda self: self.remember)
 
     gamelogs = Settings.persisted_property('game/logs', type=bool, default_value=True)
     useUPnP = Settings.persisted_property('game/upnp', type=bool, default_value=True)
@@ -150,12 +153,14 @@ class ClientWindow(FormClass, BaseClass):
         self._state = ClientState.NONE
         self.session = None
 
+        self.creds = UserCredentials()
+
         # This dictates whether we login automatically in the beginning or
         # after a disconnect. We turn it on if we're sure we have correct
         # credentials and want to use them (if we were remembered or after
         # login) and turn it off if we're getting fresh credentials or
         # encounter a serious server error.
-        self._autorelogin = self.remember
+        self._autorelogin = self.creds.remember
 
         self.lobby_dispatch = Dispatcher()
         self.lobby_connection = ServerConnection(LOBBY_HOST, LOBBY_PORT,
@@ -758,7 +763,7 @@ class ClientWindow(FormClass, BaseClass):
 
         # Toggle-Options
         self.actionSetAutoLogin.triggered.connect(self.updateOptions)
-        self.actionSetAutoLogin.setChecked(self.remember)
+        self.actionSetAutoLogin.setChecked(self.creds.remember)
         self.actionSetAutoDownloadMods.toggled.connect(self.on_actionAutoDownloadMods_toggled)
         self.actionSetAutoDownloadMods.setChecked(Settings.get('mods/autodownload', type=bool, default=False))
         self.actionSetAutoDownloadMaps.toggled.connect(self.on_actionAutoDownloadMaps_toggled)
@@ -778,7 +783,7 @@ class ClientWindow(FormClass, BaseClass):
 
     @QtCore.pyqtSlot()
     def updateOptions(self):
-        self.remember = self.actionSetAutoLogin.isChecked()
+        self.creds.remember = self.actionSetAutoLogin.isChecked()
         self.soundeffects = self.actionSetSoundEffects.isChecked()
         self.game_announcer.announce_games = self.actionSetOpenGames.isChecked()
         self.joinsparts = self.actionSetJoinsParts.isChecked()
@@ -911,19 +916,19 @@ class ClientWindow(FormClass, BaseClass):
         return True
 
     def set_remember(self, remember):
-        self.remember = remember
-        self.actionSetAutoLogin.setChecked(self.remember)  # FIXME - option updating is silly
+        self.creds.remember = remember
+        self.actionSetAutoLogin.setChecked(self.creds.remember)  # FIXME - option updating is silly
 
     def get_creds_and_login(self):
         # Try to autologin, or show login widget if we fail or can't do that.
-        if self._autorelogin and self.password and self.login:
-            if self.send_login(self.login, self.password):
+        if self._autorelogin and self.creds.password and self.creds.login:
+            if self.send_login(self.creds.login, self.creds.password):
                 return
 
         self.show_login_widget()
 
     def show_login_widget(self):
-        login_widget = LoginWidget(self.login, self.remember)
+        login_widget = LoginWidget(self.creds.login, self.creds.remember)
         login_widget.finished.connect(self.on_widget_login_data)
         login_widget.rejected.connect(self.on_widget_no_login)
         login_widget.request_quit.connect(self.on_login_widget_quit)
@@ -931,8 +936,8 @@ class ClientWindow(FormClass, BaseClass):
         login_widget.exec_()
 
     def on_widget_login_data(self, login, password):
-        self.login = login
-        self.password = password
+        self.creds.login = login
+        self.creds.password = password
 
         if self.send_login(login, password):
             return
@@ -949,7 +954,7 @@ class ClientWindow(FormClass, BaseClass):
         self._autorelogin = False # Fresh credentials
         if config.is_beta():    # Replace for develop here to not clobber the real pass
             password = util.password_hash("foo")
-        self.uniqueId = util.uniqueID(self.login, self.session)
+        self.uniqueId = util.uniqueID(self.creds.login, self.session)
         if not self.uniqueId:
             QtWidgets.QMessageBox.critical(self,
                                            "Failed to calculate UID",
@@ -1138,14 +1143,14 @@ class ClientWindow(FormClass, BaseClass):
         self.state = ClientState.LOGGED_IN
         self._autorelogin = True
         self.id = message["id"]
-        self.login = message["login"]
+        self.creds.login = message["login"]
 
-        self.me.player = Player(id_=self.id, login=self.login)
+        self.me.player = Player(id_=self.id, login=self.creds.login)
 
         self.players[self.me.player.id] = self.me.player  # FIXME
         logger.debug("Login success")
 
-        util.crash.CRASH_REPORT_USER = self.login
+        util.crash.CRASH_REPORT_USER = self.creds.login
 
         if self.useUPnP:
             self.lobby_connection.set_upnp(self.gamePort)
@@ -1277,7 +1282,7 @@ class ClientWindow(FormClass, BaseClass):
         if self.useUPnP:
             self.lobby_connection.set_upnp(self.gamePort)
 
-        info = dict(uid=message['uid'], recorder=self.login, featured_mod=message['mod'], launched_at=time.time())
+        info = dict(uid=message['uid'], recorder=self.creds.login, featured_mod=message['mod'], launched_at=time.time())
 
         self.game_session.game_uid = message['uid']
 

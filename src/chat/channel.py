@@ -357,7 +357,7 @@ class Channel(FormClass, BaseClass):
             displayName = "<b>[%s]</b>%s" % (player.clan, chname)
 
         # Play a ping sound and flash the title under certain circumstances
-        mentioned = text.find(self.chat_widget.client.login) != -1
+        mentioned = text.find(self.chat_widget.client.creds.login) != -1
         if mentioned or (self.private and not (formatter is Formatters.FORMATTER_RAW and text == "quit.")):
             self.pingWindow()
 
@@ -430,7 +430,7 @@ class Channel(FormClass, BaseClass):
         color = self.chat_widget.client.player_colors.getUserColor(_id)
 
         # Play a ping sound
-        if self.private and chname != self.chat_widget.client.login:
+        if self.private and chname != self.chat_widget.client.creds.login:
             self.pingWindow()
 
         formatter = Formatters.FORMATTER_RAW
@@ -547,7 +547,7 @@ class Channel(FormClass, BaseClass):
                     self.chat_widget.sendMsg(blobs[1], " ".join(blobs[2:]))
                 elif text.startswith("/me "):
                     if self.chat_widget.sendAction(target, text[4:]):
-                        self.printAction(self.chat_widget.client.login, text[4:], True)
+                        self.printAction(self.chat_widget.client.creds.login, text[4:], True)
                     else:
                         self.printAction("IRC", "action not supported", True)
                 elif text.startswith("/seen "):
@@ -557,7 +557,7 @@ class Channel(FormClass, BaseClass):
                         self.printAction("IRC", "not connected", True)
             else:
                 if self.chat_widget.sendMsg(target, text):
-                    self.printMsg(self.chat_widget.client.login, text, True)
+                    self.printMsg(self.chat_widget.client.creds.login, text, True)
         self.chatEdit.clear()
 
     def _checkUserQuit(self, chatter):

@@ -75,7 +75,7 @@ class ModWidget(FormClass, BaseClass):
     def addComment(self):
         if self.LineComment.text() == "":
             return
-        comment = {"author": self.parent.client.login, "text": self.LineComment.text(),
+        comment = {"author": self.parent.client.creds.login, "text": self.LineComment.text(),
                    "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
                                                                                  len(self.mod.comments)).zfill(3))}
 
@@ -91,7 +91,7 @@ class ModWidget(FormClass, BaseClass):
     def addBugReport(self):
         if self.LineBugReport.text() == "":
             return
-        bugreport = {"author": self.parent.client.login, "text": self.LineBugReport.text(),
+        bugreport = {"author": self.parent.client.creds.login, "text": self.LineBugReport.text(),
                      "date": datetostr(now()), "uid": "%s-%s" % (self.mod.uid, str(len(self.mod.bugreports) +
                                                                                    len(self.mod.comments)).zfill(3))}
 

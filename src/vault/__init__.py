@@ -63,8 +63,8 @@ class MapVault(QtCore.QObject, BusyWidget):
         url = QtCore.QUrl(ROOT)
         url.setPath("/faf/vault/maps_qt5.php")
         query = QtCore.QUrlQuery(url.query())
-        query.addQueryItem('username', self.client.login)
-        query.addQueryItem('pwdhash', self.client.password)
+        query.addQueryItem('username', self.client.creds.login)
+        query.addQueryItem('pwdhash', self.client.creds.password)
         url.setQuery(query)
 
         self.ui.setUrl(url)

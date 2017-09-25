@@ -188,7 +188,7 @@ class LiveReplaysWidgetHandler(object):
                 url.setQuery(query)
 
                 playeritem.url = url
-                if client.instance.login == name:
+                if client.instance.creds.login == name:
                     mygame = True
                     item.setForeground(1, QtGui.QColor(client.instance.player_colors.getColor("self")))
                     playeritem.setForeground(0, QtGui.QColor(client.instance.player_colors.getColor("self")))
