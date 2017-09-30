@@ -35,9 +35,21 @@ class Lines(QObject):
 
 
 class Channel(Lines):
+    new_topic = pyqtSignal(str)
+
     def __init__(self, info):
         Lines.__init__(self)
         self.info = info
+        self._topic = ""
+
+    @property
+    def topic(self):
+        return self._topic
+
+    @topic.setter
+    def topic(self, topic):
+        self._topic = topic
+        self.new_topic.emit(topic)
 
 
 class ServerMessages(Lines):

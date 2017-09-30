@@ -3,13 +3,12 @@ from chat.channel2 import Channel, ServerMessages
 
 
 class Chat(QObject):
-    new_line = pyqtSignal(object)
     channel_added = pyqtSignal(object, object)
     channel_removed = pyqtSignal(object, object)
 
     def __init__(self, chatterset, metadata_filler):
         QObject.__init__(self)
-        self._chatterset = chatterset
+        self.chatters = chatterset
         self._metadata_filler = metadata_filler
         self.channels = {}
         self.server_messages = ServerMessages()
