@@ -1,0 +1,74 @@
+/* This is a jinja template for a CSS file.
+ *
+ * Supported template variables are:
+ * colors.you
+ * colors.friend
+ * colors.foe
+ * colors.clan
+ *
+ * Supported CSS classes are:
+ * - name text time - for identifying chat line elements
+ *
+ * - action raw announcement - at most one of these to identify chatter IRC
+ *   action, raw text or server announcement
+ *
+ * - friend foe clan mentioned - to specify who the chatter is for us and
+ *   whether we were mentioned in text.
+ */
+
+/* Defaults */
+
+.name, .text, .time {
+	color: grey;
+	padding-top: 3; /* align with avatar icon */
+}
+
+.name {
+	width: 100;
+	text-align: right;
+}
+
+.text {
+	width: 100%;
+}
+
+.time {
+	width: 32;
+	text-align: right;
+}
+
+{% if randomcolors is not none %}
+	{% for id, name in randomcolors %}
+		.{{id}}.name, .{{id}}.text {
+			color: {{name}};
+		}
+	{% endfor %}
+{% endif %}
+
+.action.name, .action.text {
+	font-style: italic;	
+}
+
+.raw.name, .raw.text, .raw.time {	
+	font-style: italic;	
+}
+
+.announcement.name, .announcement.time {
+	width: 0;
+}
+
+.friend.name, .friend.text {
+	color: {{ colors.friend }};
+}
+
+.foe.name, .foe.text {
+	color: {{ colors.foe }};
+}
+
+.clan.name, .clan.text {
+	color: {{ colors.clan }};
+}
+
+.mentioned.name, .mentioned.text {
+	color: {{ colors.you }};
+}

@@ -8,6 +8,7 @@ from chat.chatter import Chatter
 import re
 import json
 import html
+import jinja2
 
 QUERY_BLINK_SPEED = 250
 CHAT_TEXT_LIMIT = 350
@@ -21,23 +22,6 @@ class IRCPlayer():
         self.name = name
         self.id = -1
         self.clan = None
-
-
-class Formatters(object):
-    FORMATTER_AVATAR         = str(util.THEME.readfile("chat/formatters/avatar.qthtml"))
-    FORMATTER_ANNOUNCEMENT   = str(util.THEME.readfile("chat/formatters/announcement.qthtml"))
-    FORMATTER_MESSAGE        = str(util.THEME.readfile("chat/formatters/message.qthtml"))
-    FORMATTER_ACTION         = str(util.THEME.readfile("chat/formatters/action.qthtml"))
-    FORMATTER_RAW            = str(util.THEME.readfile("chat/formatters/raw.qthtml"))
-    NICKLIST_COLUMNS         = json.loads(util.THEME.readfile("chat/formatters/nicklist_columns.json"))
-
-    @classmethod
-    def format(cls, fmt, avatar, **kwargs):
-        if avatar is None:
-            avatar_img = ""
-        else:
-            avatar_img = cls.FORMATTER_AVATAR.format(avatar=avatar, **kwargs)
-        return fmt.format(avatar=avatar_img, **kwargs)
 
 
 # Helper class to schedule single event loop calls.
@@ -61,7 +45,7 @@ class ScheduledCall(QtCore.QObject):
         self._fn()
 
 
-class ChatLog:
+class ChatLogView:
     def __init__(self, widget, client):
         self._w = widget
         self._w.anchorClicked.connect(self.openUrl)
@@ -137,72 +121,112 @@ class ChatLog:
     def setTextWidth(self):
         self._w.setLineWrapColumnOrWidth(self._w.size().width() - 20)  # Hardcoded, but seems to be enough (tabstop was a bit large)
 
-
-class FormattedText:
-    """
-    Qt has Qfont for that, but it can't be conveniently used with Python's
-    string formatting, so let's roll our own.
-    """
-    def __init__(self, properties={}):
-        self.properties = properties
-
-    def copy(self):
-        return FormattedText(self.properties.copy())
-
-    def update(self, properties):
-        self.properties.update(properties)
-
-    def _css_property(self, name, value):
-        name = html.escape(name, True)
-        value = html.escape(value, True)
-        return "{}='{}';".format(name, value)
-
-    def _css_style(self):
-        return "".join(
-                self._css_property(n, v) for n, v in self.properties.items())
-
-    def format(self, text):
-        return '<p style="{}">{}</p>'.format(self._css_style(), text)
+    def setCss(self, css):
+        self._w.document().setDefaultStyleSheet(css)
 
 
-class ChatLineFormat:
-    FORMATTER = str(util.THEME.readfile("chat/formatters/chatline.qthtml"))
-
-    def __init__(self, name_format=None, text_format=None, time_format=None):
-        self.name_format = (name_format if name_format is not None
-                            else FormattedText())
-        self.text_format = (text_format if text_format is not None
-                            else FormattedText())
-        self.time_format = (time_format if time_format is not None
-                            else FormattedText())
-
-    def copy(self):
-        new = ChatLineFormat()
-        new.name_format = self.name_format.copy()
-        new.text_format = self.text_format.copy()
-        new.time_format = self.time_format.copy()
-        return new
-
-    def update(self, fmt):
-        if "name" in fmt:
-            self.name_format.update(fmt["name"])
-        if "text" in fmt:
-            self.text_format.update(fmt["text"])
-        if "time" in fmt:
-            self.time_format.update(fmt["time"])
-
-    def format(self, avatar="", name="", text="", time=""):
-        name = self.name_format.format(name)
-        text = self.text_format.format(text)
-        time = self.time_format.format(time)
-        return self.FORMATTER.format(avatar=avatar, name=name, text=text,
-                                     time=time)
+class Formatters(object):
+    FORMAT_AVATAR = str(util.THEME.readfile("chat/formatters/avatar.qthtml"))
+    FORMAT_CSS = str(util.THEME.readfile("chat/formatters/chatline_theme.css"))
+    NICKLIST_COLUMNS = json.loads(util.THEME.readfile("chat/formatters/nicklist_columns.json"))
 
     @classmethod
-    def get_format(cls, name):
-        formats_dir = "chat/formatters/formats/{}.json"
-        fmt = json.loads(util.THEME.readfile(formats_dir.format(name)))
-        return cls(fmt.get["name"], fmt.get["text"], fmt.get["time"])
+    def format(cls, fmt, avatar, name, text, time):
+        if avatar is None:
+            avatar = ""
+        else:
+            avatar = cls._avatar_fmt(*avatar)
+        return fmt.format(avatar=avatar, name=name, text=text, time=time)
+
+    @classmethod
+    def _avatar_fmt(cls, img, tip):
+        return cls.FORMAT_AVATAR.format(avatar=img, avatarTip=tip)
+
+
+class ChatLogCssTemplate(QtCore.QObject):
+
+    def __init__(self, theme, playercolors, randomcolors):
+        QtCore.QObject.__init__(self)
+        self._env = jinja2.Environment()
+        self._template = None
+        self._css = None
+        self._playercolors = playercolors
+        self._randomcolors = randomcolors
+        self._theme = theme
+        self._reload_template()
+
+    @property
+    def theme(self):
+        return self._theme
+
+    @theme.setter
+    def theme(self, theme):
+        self._theme = theme
+        self._reload_template()
+
+    @property
+    def randomcolors(self):
+        return self._randomcolors
+
+    @randomcolors.setter
+    def randomcolors(self, v):
+        self._randomcolors = v
+        self._reload_css()
+
+    @property
+    def css(self):
+        return self._css
+
+    def _reload_template(self):
+        tstr = str(self._theme.readfile("chat/formatters/chatline_theme.css"))
+        self._template = self._env.from_string(tstr)
+        self._reload_css()
+
+    def _reload_css(self):
+        colors = self.playercolors.colors
+        if self.randomcolors:
+            css_pairs = self.playercolors.randomcolors
+            randompairs = [("randomcolor" + str(i), name)
+                           for i, name in enumerate(randomcolors)]
+        else:
+            css_pairs = None
+
+        self._css = self._template.render(colors=colors,
+                                          randomcolors=css_pairs)
+        self.updated.emit()
+
+
+class ChatLogLineTemplate(QtCore.QObject):
+    updated = QtCore.pyqtSignal()
+
+    def __init__(self, theme):
+        QtCore.QObject.__init__(self)
+        self.load_theme(theme)
+
+    def load_theme(self, theme):
+        self._fmt = str(theme.readfile("chat/formatters/chatline.qthtml"))
+        self._avatar_fmt = str(theme.readfile("chat/formatters/avatar.qthtml"))
+        self.updated.emit()
+
+    def format(self, avatar=None, name="", text="", date="", tags=[]):
+        if avatar is None:
+            avatar = ""
+        else:
+            img, tip = avatar
+            avatar = self._avatar_fmt(img=img, tip=tip)
+        return self._fmt.format(avatar=avatar, name=name, text=text, date=date,
+                                tags=" ".join(tags))
+
+
+class ChatLog:
+    def __init__(self, css_template, line_template, view):
+        self._css_template = css_template
+        self._line_template = line_template
+        self._view = view
+        self._view.setCss(self._css_template.css)
+
+    def printMsg():
+        pass
 
 
 class Channel(FormClass, BaseClass):
