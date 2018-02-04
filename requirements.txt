@@ -1,4 +1,4 @@
-cx_Freeze==5.0.2
+cx_Freeze
 ipaddress
 pathlib
 pyqt5
