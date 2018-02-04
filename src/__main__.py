@@ -46,10 +46,18 @@ if sys.platform == 'win32' and not args.no_qt_angle_workaround:
     os.environ.setdefault('QT_ANGLE_PLATFORM', 'd3d9')
 
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication, QLibraryInfo
 
 path = os.path.join(os.path.dirname(sys.argv[0]), "PyQt5.uic.widget-plugins")
 uic.widgetPluginPath.append(path)
+
+import logging
+logger = logging.getLogger(__name__)
+
+logger.error("Path before: {}".format(QCoreApplication.applicationDirPath()))
+logger.error("libexec: {}".format(QLibraryInfo.location(QLibraryInfo.LibraryExecutablesPath)))
+logger.error("bin: {}".format(QLibraryInfo.location(QLibraryInfo.BinariesPath)))
+logger.error("data: {}".format(QLibraryInfo.location(QLibraryInfo.DataPath)))
 
 # According to PyQt5 docs we need to import this before we create QApplication
 from PyQt5 import QtWebEngineWidgets
@@ -127,6 +135,11 @@ if __name__ == '__main__':
 
     logger = logging.getLogger(__name__)
     logger.info(">>> --------------------------- Application Launch")
+    logger.error("Path after: {}".format(QCoreApplication.applicationDirPath()))
+    logger.error("lib: {}".format(QLibraryInfo.location(QLibraryInfo.LibrariesPath)))
+    logger.error("libexec: {}".format(QLibraryInfo.location(QLibraryInfo.LibraryExecutablesPath)))
+    logger.error("bin: {}".format(QLibraryInfo.location(QLibraryInfo.BinariesPath)))
+    logger.error("data: {}".format(QLibraryInfo.location(QLibraryInfo.DataPath)))
 
     # Set application icon to nicely stack in the system task bar
     app.setWindowIcon(util.THEME.icon("window_icon.png", True))
