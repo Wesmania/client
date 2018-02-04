@@ -50,18 +50,18 @@ for module in ["invoke.py", "load_plugin.py"]:
 import PyQt5.uic
 build_exe_options = {
     'include_files': ['res',
-                      'imageformats',
-                      'platforms',
-                      'libeay32.dll',
-                      'ssleay32.dll',
-                      'libEGL.dll', # For QtWebEngine
-                      'libGLESv2.dll', # ditto
-                      'icudtl.dat', #ditto
-                      'qtwebengine_resources.pak', # ditto
-                      'QtWebEngineProcess.exe', # ditto
                       ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
+                      ('lib/xdelta3.exe', 'lib/xdelta3.exe'),
                       ('lib/qt.conf', 'qt.conf'),
-                      ('lib/xdelta3.exe', 'lib/xdelta3.exe')],
+                      'libeay32.dll',
+                      'ssleay32.dll'],
+    'zip_includes': [('imageformats', 'PyQt5/Qt/plugins/imageformats'),
+                     ('platforms', 'PyQt5/Qt/plugins/platforms'),
+                     ('lib/libEGL.dll', 'PyQt5/Qt/lib/libEGL.dll'),     # For QtWebEngine
+                     ('lib/libGLESv2.dll', 'PyQt5/Qt/lib/libGLESv2.dll'),   # ditto
+                     ('lib/icudtl.dat', 'PyQt5/Qt/icudtl.dat'),     #ditto
+                     ('lib/qtwebengine_resources.pak', 'PyQt5/Qt/qtwebengine_resources.pak'),   # ditto
+                     ('lib/QtWebEngineProcess.exe', 'PyQt5/Qt/bin/QtWebEngineProcess.exe')],  # ditto
     'include_msvcr': True,
     'optimize': 2,
     # cx_freeze >5.0.0 fails to add idna, we'll remove it once they fix it
