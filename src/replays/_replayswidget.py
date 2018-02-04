@@ -8,7 +8,6 @@ import fa
 import time
 import client
 import json
-import jsonschema
 
 from replays.replayitem import ReplayItem, ReplayItemDelegate
 from model.game import GameState
@@ -309,10 +308,10 @@ class ReplayMetadata:
             "required": ["num_players", "mapname", "title", "teams",
                          "featured_mod"]
         }
-        try:
-            jsonschema.validate(self.data, replay_schema)
-        except jsonschema.ValidationError:
-            self.is_broken = True
+#        try:
+#            jsonschema.validate(self.data, replay_schema)
+#        except jsonschema.ValidationError:
+#            self.is_broken = True
 
     def launch_time(self):
         if 'launched_at' in self.data:
