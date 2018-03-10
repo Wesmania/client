@@ -4,6 +4,13 @@
 0.17.0
 =====
 
+0.16.2
+=====
+ * Fix missing audio plugin causing sounds not to be played on Windows (#995)
+
+ Contributors:
+ - Wesmania
+
 0.16.1
 ====
 

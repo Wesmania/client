@@ -52,6 +52,7 @@ build_exe_options = {
     'include_files': ['res',
                       'imageformats',
                       'platforms',
+                      'audio',
                       'libeay32.dll',
                       'ssleay32.dll',
                       'libEGL.dll', # For QtWebEngine
