@@ -52,6 +52,12 @@ def get_jsonschema_includes():
     onlyfiles = [f for f in os.listdir(schemas) if os.path.isfile(os.path.join(schemas, f))]
     return [(os.path.join(schemas, f), os.path.join("jsonschema", "schemas", f)) for f in onlyfiles]
 
+def get_site_includes(package, items):
+    pyqt_dir = os.path.join(site.getsitepackages()[1], package)
+    for src, dst in items:
+        yield (os.path.join(pyqt_dir, src), dst)
+
+
 shortcut_table = [
     ('DesktopShortcut',           # Shortcut
      'DesktopFolder',             # Directory_
@@ -89,22 +95,37 @@ if sys.platform == 'win32':
     base = 'Win32GUI'
 
 if sys.platform == 'win32':
+    pyqt_includes = list(get_site_includes(
+        "PyQt5",
+        [("Qt\\plugins\\imageformats", "imageformats"),
+         ("Qt\\plugins\\platforms", "platforms"),
+         ("Qt\\plugins\\audio", "audio"),
+         ("Qt\\bin\\libeay32.dll", "libeay32.dll"),
+         ("Qt\\bin\\ssleay32.dll", "ssleay32.dll"),
+         ("Qt\\bin\\QtWebEngineProcess.exe", "QtWebEngineProcess.exe"),
+         ("Qt\\bin\\Qt5WebEngine.dll", "Qt5WebEngine.dll"),
+         ("Qt\\bin\\Qt5WebEngineCore.dll", "Qt5WebEngineCore.dll"),
+         ("Qt\\bin\\Qt5WebEngineWidgets.dll", "Qt5WebEngineWidgets.dll"),
+         ("Qt\\bin\\Qt5WebChannel.dll", "Qt5WebChannel.dll"),
+         ("Qt\\bin\\libEGL.dll", "libEGL.dll"),
+         ("Qt\\bin\\libGLESv2.dll", "libGLESv2.dll"),
+         ("Qt\\resources\\icudtl.dat", "icudtl.dat"),
+         ("Qt\\resources\\qtwebengine_resources.pak", "qtwebengine_resources.pak"),
+         ]))
+    pywin32_includes = list(get_site_includes(
+        "pywin32_system32",
+        [("pywintypes36.dll", "pywintypes36.dll"),
+         ("pythoncom36.dll", "pythoncom36.dll")
+         ]))
+    other_includes = ['res',
+                      ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
+                      ('lib/qt.conf', 'qt.conf'),
+                      ('lib/xdelta3.exe', 'lib/xdelta3.exe')]
     # Dependencies are automatically detected, but it might need fine tuning.
     build_exe_options = {
-        'include_files': ['res',
-                          'imageformats',
-                          'platforms',
-                          'audio',
-                          'libeay32.dll',
-                          'ssleay32.dll',
-                          'libEGL.dll', # For QtWebEngine
-                          'libGLESv2.dll', # ditto
-                          'icudtl.dat', #ditto
-                          'qtwebengine_resources.pak', # ditto
-                          'QtWebEngineProcess.exe', # ditto
-                          ('lib/faf-uid.exe', 'lib/faf-uid.exe'),
-                          ('lib/qt.conf', 'qt.conf'),
-                          ('lib/xdelta3.exe', 'lib/xdelta3.exe')],
+        'include_files': (pyqt_includes +
+                          pywin32_includes +
+                          other_includes),
         'zip_includes': get_jsonschema_includes(),
         'include_msvcr': True,
         'optimize': 2,
