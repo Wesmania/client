@@ -18,11 +18,11 @@ install:
   - git describe --tags --always
   # install dependencies using pip
   - "%PYTHON%\\Scripts\\pip install pyqt5==5.7.1"
-  - "%PYTHON%\\Scripts\\pip install https://github.com/FAForever/python-wheels/releases/download/2.0.0/pywin32-221-%PYWHEEL_INFIX%-%PYWHEEL_INFIX%m-win32.whl"
+  - "%PYTHON%\\Scripts\\pip install pywin32"
   - "%PYTHON%\\Scripts\\pip install wheel"
   - "%PYTHON%\\Scripts\\pip install pytest"
   - "%PYTHON%\\Scripts\\pip install cx_Freeze==5.0.2"
-  - "%PYTHON%\\Scripts\\pip install -r requirements.txt --trusted-host content.faforever.com"
+  - "%PYTHON%\\Scripts\\pip install -r requirements.txt"
   - ps: "$env:faf_version = \"$(&C:\\Python36\\python .\\src\\config\\version.py)\".Replace(' ','')"
   - ps: "$env:APPVEYOR_BUILD_VERSION = \"$($env:faf_version)$($env:APPVEYOR_BUILD_NUMBER)\""
   - ps: "Write-Host \"$($env:faf_version) + $($env:APPVEYOR_BUILD_NUMBER) = $($env:APPVEYOR_BUILD_VERSION)\""
