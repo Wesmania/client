@@ -38,15 +38,6 @@ if sys.platform == 'win32':
     if git_revision:
         print('Git revision:', git_revision)
 
-# Ugly hack to fix broken PyQt5 (FIXME - necessary?)
-for module in ["invoke.py", "load_plugin.py"]:
-    try:
-        silly_file = Path(PyQt5.__path__[0]) / "uic" / "port_v2" / module
-        print("Removing {}".format(silly_file))
-        silly_file.unlink()
-    except OSError:
-        pass
-
 def get_jsonschema_includes():
     schemas = os.path.join(site.getsitepackages()[1], "jsonschema", "schemas")
     onlyfiles = [f for f in os.listdir(schemas) if os.path.isfile(os.path.join(schemas, f))]
