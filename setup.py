@@ -5,12 +5,6 @@ import site
 import sip
 from pathlib import Path
 
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-sip.setapi('QStringList', 2)
-sip.setapi('QList', 2)
-sip.setapi('QProcess', 2)
-
 import PyQt5.uic
 if sys.platform == 'win32':
     from cx_Freeze import setup, Executable
