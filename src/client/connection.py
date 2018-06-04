@@ -307,6 +307,7 @@ class Dispatcher():
         del self._receivers[(target, msg)]
 
     def dispatch(self, message):
+        logger.info("Incoming JSON message: {}".format(message))
         if "command" not in message:
             logger.debug("No command in message.")
             return
