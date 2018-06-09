@@ -227,8 +227,10 @@ def showDirInFileBrowser(location):
 
 def showFileInFileBrowser(location):
     if sys.platform == 'win32':
+        # Qt paths are always in posix format, normalize to backslashes
+        norm_location = os.path.normpath(location)
         # Open the directory and highlight the picked file
-        subprocess.Popen('explorer /select,"{}"'.format(location))
+        subprocess.Popen('explorer /select,"{}"'.format(norm_location))
     else:
         # No highlighting on cross-platform, sorry!
         showDirInFileBrowser(os.path.dirname(location))
