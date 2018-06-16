@@ -17,6 +17,9 @@ Created on Dec 1, 2011
 import os
 import sys
 
+import asyncio
+import acute
+
 # Some linux distros (like Gentoo) make package scripts available
 # by copying and modifying them. This breaks path to our modules.
 
@@ -106,7 +109,7 @@ def runFAF():
     faf_client.doConnect()
 
     # Main update loop
-    QtWidgets.QApplication.exec_()
+    asyncio.get_event_loop().run_forever()
 
 
 if __name__ == '__main__':
@@ -115,6 +118,8 @@ if __name__ == '__main__':
 
     QtWidgets.QApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
     app = QtWidgets.QApplication(trailing_args)
+    loop = acute.QEventLoop(app)
+    asyncio.set_event_loop(loop)
 
     if sys.platform == 'win32':
         import platform
