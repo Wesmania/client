@@ -1,10 +1,13 @@
-import urllib.request
-import urllib.error
-import urllib.parse
 import json
 import copy
 import time
+import asyncio
+
+from acute import AsyncSignals
+
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QUrl
+from PyQt5.QtNetwork import QNetworkReply, QNetworkRequest
 
 import logging
 logger = logging.getLogger(__name__)
@@ -17,39 +20,41 @@ class ApiError(Exception):
 
 
 class AliasViewer:
-    def __init__(self):
-        pass
+    def __init__(self, network_manager):
+        self._network_manager = network_manager
 
-    # TODO refactor once async api is implemented
-    def _api_request(self, link):
+    async def _api_request(self, link):
+        req = QNetworkRequest(QUrl(link))
+        reply = self._network_manager.get(req)
+        await AsyncSignals([reply.finished])
+        if reply.error() != QNetworkReply.NoError:
+            raise ApiError("Failed to get link {}: {}".format(
+                link, reply.errorString()))
         try:
-            with urllib.request.urlopen(link) as response:
-                return json.loads(response.read().decode())
-        except urllib.error.URLError as e:
-            raise ApiError("Failed to get link {}: {}".format(link, e.reason))
-        except json.decoder.JSONDecodeError as e:
-            raise ApiError("Failed to decode incoming JSON")
+            return json.loads(reply.readAll().data().decode())
+        except (json.decoder.JSONDecodeError, UnicodeError) as e:
+            raise ApiError("Failed to decode incoming JSON: {}".format(e))
 
     def _parse_time(self, t):
         return time.strptime(t, "%Y-%m-%dT%H:%M:%SZ")
 
-    def player_id_by_name(self, checked_name):
+    async def player_id_by_name(self, checked_name):
         api_link = 'https://api.faforever.com/data/player' \
                    '?filter=login=={name}' \
                    '&fields[player]='
         query = api_link.format(name=checked_name)
-        response = self._api_request(query)
+        response = await self._api_request(query)
         if response is None or len(response['data']) == 0:
             return None
         return int(response['data'][0]['id'])
 
-    def names_previously_known(self, user_id):
+    async def names_previously_known(self, user_id):
         api_link = 'https://api.faforever.com/data/player/{id_}' \
                    '?include=names' \
                    '&fields[player]=login' \
                    '&fields[nameRecord]=name,changeTime'
         query = api_link.format(id_=user_id)
-        response = self._api_request(query)
+        response = await self._api_request(query)
         if response is None or 'included' not in response:
             return []
 
@@ -69,14 +74,14 @@ class AliasViewer:
                         'time': None})
         return aliases
 
-    def name_used_by_others(self, checked_name):
+    async def name_used_by_others(self, checked_name):
         api_link = 'https://api.faforever.com/data/player' \
                    '?include=names' \
                    '&filter=(login=={name},names.name=={name})' \
                    '&fields[player]=login,names' \
                    '&fields[nameRecord]=name,changeTime'
         query = api_link.format(name=checked_name)
-        response = self._api_request(query)
+        response = await self._api_request(query)
         if response is None or 'data' not in response:
             return []
 
@@ -166,33 +171,47 @@ class AliasFormatter:
 class AliasWindow:
     def __init__(self, parent_widget, api, formatter):
         self._parent_widget = parent_widget
-        self._api = AliasViewer()
-        self._fmt = AliasFormatter()
+        self._api = api
+        self._fmt = formatter
+        self._alias_view_task = None
 
     @classmethod
-    def build(cls, parent_widget, **kwargs):
-        api = AliasViewer()
+    def build(cls, parent_widget, network_manager, **kwargs):
+        api = AliasViewer(network_manager)
         formatter = AliasFormatter()
         return cls(parent_widget, api, formatter)
 
-    def view_aliases(self, name, id_=None):
+    def view_aliases(self, *args, **kwargs):
+        if self._alias_view_task is not None:
+            self._alias_view_task.cancel()
+        self._alias_view_task = asyncio.ensure_future(
+            self.async_view_aliases(*args, **kwargs))
+        self._alias_view_task.done_signal.connect(self._when_done)
+
+    def _when_done(self, result, future):
+        try:
+            future.result()
+        except asyncio.CancelledError:
+            pass
+
+    async def async_view_aliases(self, name, id_=None):
         player_aliases = None
         other_users = None
         try:
-            other_users = self._api.name_used_by_others(name)
+            other_users = await self._api.name_used_by_others(name)
             if id_ is None:
                 users_now = [u for u in other_users if u['time'] is None]
                 if len(users_now) > 0:
                     id_ = users_now[0]['id']
             if id_ is not None:
-                player_aliases = self._api.names_previously_known(id_)
+                player_aliases = await self._api.names_previously_known(id_)
         except ApiError as e:
             logger.error(e.reason)
             warning_text = ("Failed to query the FAF API:<br/>"
                             "<i>{exception}</i><br/>"
                             "Some info may be incomplete!")
             warning_text = warning_text.format(exception=e.reason)
-            QtWidgets.QMessageBox.warning(self._parent,
+            QtWidgets.QMessageBox.warning(self._parent_widget,
                                           "API read error",
                                           warning_text)
 
