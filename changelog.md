@@ -1,6 +1,16 @@
 0.x.x
 =====
 
+0.19.0-alpha.1
+=====
+ * Fix 'show config file' option leading nowhere on Windows
+ * Add a new theme by Exotic\_Retard. This is intended to eventually replace
+   the current theme.
+
+ Contributors:
+ - Wesmania
+ - Exotic\_Retard
+
 0.18.0
 =====
  * Refactor updater code. Although tested to work, let's still pray that it
