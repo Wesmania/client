@@ -138,7 +138,11 @@ class ThemeSet(QtCore.QObject):
 
     def loadTheme(self):
         name = self._settings.get("theme/theme/name", None)
-        logger.debug("Loaded Theme: " + str(name))
+        # FIXME: Tiny hack to always load the new theme by default, for
+        # development versions. Once we decide if it goes in, remove this.
+        if name is None or name == "":
+            name = "(Builtin) R[e]tarded"
+        logger.info("Loaded Theme: " + str(name))
         self.setTheme(name, False)
 
     def listThemes(self):
