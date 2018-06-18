@@ -1,0 +1,16 @@
+
+<font color="white" size="+2"><b>{title}</b></font><br/>
+<font color="silver"><font size="-1"></font>&nbsp;<b>{mapdisplayname}</b></font></font>
+<table border="0" cellpadding="0" cellspacing="0" width= "210">
+<tbody>
+<tr>
+<td>
+<font color="silver"><font size="-1"></font>&nbsp;<b>{players} / {mapslots} {playerstring}</b><br/><br/><font size="-1">by</font>&nbsp;<font color="{color}"><b>{host}</b></font></font>
+</td>
+<td align="right">
+<b><font color="silver" size="-1">Avg. Rating</font><br/>
+<font color="silver" size="+1">{avgrating}</font></b>
+</td>
+</tr>
+</tbody>
+</table>

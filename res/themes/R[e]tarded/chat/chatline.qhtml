@@ -1,0 +1,1 @@
+<tr class="{tags}" width=100% margin=20><td class="col_avatar" width=42 margin=20>{avatar}</td><td class="col_sender" width=100 margin=20>{sender}</td><td width=100% margin=20 class="col_text">{text}</td><td class="col_time" width=32 margin=20>{time}</td></tr>

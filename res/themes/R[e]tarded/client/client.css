@@ -1,0 +1,1190 @@
+/*Theme by [e]Exotic_Retard
+
+Highlight: #fd5e0d --this is the nice orange colour. use sparingly.
+base grey: #2d2d2d --barely used
+dark grey: #222222 --unused
+light border colour: #3f3f3f --use on elements with light grey infill
+dark border colour: #2f2f2f --use on elements with dark grey infill
+Text colour: #CCCCCC
+
+
+light gray infill: rgba(0, 0, 0, 80); -- use on light grey background
+dark gray infill: rgba(0, 0, 0, 50); -- use on elements inside the light grey infill
+
+
+highlight background: rgba(0, 0, 0, 45);
+*/
+
+*[warning="true"]
+{
+    color: #CCCCCC;
+}
+
+*[warning="false"]
+{
+    color: #CCCCCC;
+}
+
+*[titleLabel="true"]
+{
+    color:lightgrey;
+    font-size:12pt;
+    margin-right: 15px;
+    font-family: Verdana;
+    padding-bottom:3px;
+}
+
+*[windowControlBtn="true"]
+{
+    background-color: transparent;
+    width: 18px;
+    height: 18px;
+}
+/* Menus at the top of the client --------------------------------------------------------------------------------------------------------- */
+QMenuBar
+{
+    background-color: rgba(0,0,0,0);
+}
+
+QMenuBar::item
+{
+    background-color: rgba(0,0,0,0);
+    color: #CCCCCC;
+}
+
+QMenuBar::item:selected { /* when selected using mouse or keyboard */
+    background: rgba(0, 0, 0, 45);
+    border-radius: 0px;
+    color: #fd5e0d;
+}
+
+QMenuBar::item:pressed {
+    background: rgba(0, 0, 0, 50);
+}
+
+/* The bits that come down from the menu ----------------------------------- */
+QMenu {
+    background-color: rgb(40,40,40);
+    color: #CCCCCC;
+    margin: 0px; 
+    border: 1px solid #3f3f3f;
+}
+
+QMenu::item {
+    padding: 2px 25px 2px 20px;
+    margin: 0px;
+    color: #CCCCCC;
+    border: 0px solid transparent; /* reserve space for selection border */
+}
+
+QMenu::item:selected {
+    background: rgba(0, 0, 0, 50);
+    border-radius: 0px;
+    color: #fd5e0d;
+}
+
+QMenu::icon:checked { /* appearance of a 'checked' icon */
+     background: gray;
+     border: 0px inset gray;
+     position: absolute;
+     top: 1px;
+     right: 1px;
+     bottom: 1px;
+     left: 1px;
+}
+
+/* appearance of a 'checked' icon */
+QMenu::separator { 
+     height: 1px;
+     background: #CCCCCC;
+     margin-top: 2px;
+     margin-bottom: 2px;
+}
+
+ QMenu::indicator {
+    width: 13px;
+    height: 13px;
+}
+
+/* The main window of the faf client --------------------------------------------------------------------------------------------------------- */
+
+/* Central area background */
+
+QWidget#centralwidget
+{
+    background-image: url("%THEMEPATH%/images/Background_Base01.png");
+    background-position: center;
+    background-color: #2d2d2d;
+    margin:0px;
+    padding:0px;
+    border: 1px solid #4c4c4c; /* gets a nice border around the window */
+}
+
+/* Set Text colours throughout the client, in case we missed some spot */
+QWidget#centralwidget > QWidget
+{
+color: #CCCCCC;
+}
+
+/* not sure if this QDialog should be moved to somewhere more appropriate */
+
+QDialog > QWidget
+{
+    color: #CCCCCC;
+}
+
+/* Client Tabs. These are for all tabs, and we specify down later. --------------------------------------------------------------------------------------------------------- */
+
+QTabWidget::tab-bar {
+    alignment: center;
+    background-color: none;
+    background-position: center;
+}
+
+/* tab buttons. */
+
+QTabBar::tab {
+    background: transparent;
+    min-height:16px;
+    color: #CCCCCC;
+    margin: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding: 18px;
+    padding-right: 25px;
+    padding-left: 25px;
+    border-image: url("%THEMEPATH%/images/Button_upS.png") 0 0 0 0 stretch;
+    min-width: 70;
+}
+
+QTabBar::tab:hover {
+     
+    background: transparent;
+    color: #fd5e0d;
+     border-image: url("%THEMEPATH%/images/Button_hoverS.png") 0 0 0 0 stretch;
+}
+
+QTabBar::tab:selected{
+     
+    background: transparent;
+    color: #fd5e0d;
+     border-image: url("%THEMEPATH%/images/Button_downS.png") 0 0 0 0 stretch;
+}
+
+QTabBar::close-button {
+    subcontrol-position: right;
+    image: url("%THEMEPATH%/images/Close_button_up.png");
+    margin-right:5px;
+}
+
+QTabBar::close-button:hover {
+    image: url("%THEMEPATH%/images/Close_button_hover.png");
+    margin-right:5px;
+}
+
+/* Main tabs of the client, controlled by the tab bar below --------------------------------------------------- */
+
+QTabWidget #whatNewTab,#chatTab,#lobbyTab,#tourneyTab,#mapsTab,#galacticTab,#modsTab,#replaysTab
+{
+        background-color: transparent;
+        border-width: 0px;
+        color: #CCCCCC;
+}
+
+/* the coop tab doesnt have subtabs, and so wants its own background, and extra margin at the top. of course, adding a margin doesn't work. of course. */
+
+QTabWidget #coopTab,#gamesTab
+{ /* removes logo for some of the tabs as it doesn't make any sense there*/
+    background-color: rgba(0, 0, 0, 80);
+    border-image: url("%THEMEPATH%/images/Border_Shadow01.png") 15 stretch;
+    border: 15px solid #3f3f3f;
+    padding: 50px; /* apparently the tab itself is empty? or something */
+}
+
+/* Main tab bar at the bottom of the client for the tabs above ----------------------------------- */
+
+
+
+/* frame of the main tabs */
+QTabWidget#mainTabs::pane
+{
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-width: 0px;
+    margin: 0px;
+}
+
+/* the individual tab buttons */    
+QTabWidget#mainTabs > QTabBar::tab
+{
+    background: none;
+    qproperty-iconSize:0; /* i forgot why this is here */
+    color: #CCCCCC;
+    border: none;
+    margin: 0px;
+    padding: 0px;
+    background-image: url("%THEMEPATH%/images/Icon_up.png");
+    border-image: none;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    min-width: 10;
+}
+
+
+QTabWidget#mainTabs > QTabBar::tab:hover 
+{
+    background: none;
+    color: #fd5e0d;
+    background-image: url("%THEMEPATH%/images/Icon_hover.png");
+    background-repeat: round;
+    background-position: bottom;
+    min-width: 10;
+}
+
+QTabWidget#mainTabs > QTabBar::tab:selected 
+{
+    background: none;
+    color: #fd5e0d;
+    background-image: url("%THEMEPATH%/images/Icon_down.png");
+    background-repeat: no-repeat;
+    background-position: bottom;
+    min-width: 10;
+}
+
+/* give the tab bar a bit more space.*/
+QTabWidget#mainTabs > QFrame
+{
+    margin-bottom:10px;
+}
+
+/* Chat tabs at the top, which change sub-tabs inside the main tabs */
+
+QTabWidget#topTabs::pane
+{
+    background-color: rgba(0, 0, 0, 80);
+    border-image: url("%THEMEPATH%/images/Border_Shadow01.png") 15 stretch;
+    border: 15px solid #3f3f3f;
+    padding: 0px;
+}
+
+
+/* chat tabs are different and fixed size to stop them messing up when pinged */
+
+QTabWidget#topTabs > QTabBar::tab
+{
+     padding-right: 10px;
+     padding-left: 10px;
+     padding-bottom: 20px;
+     border-image: url("%THEMEPATH%/images/Button_up.png") 0 0 0 0 stretch;
+}
+
+QTabWidget#topTabs > QTabBar::tab:hover
+{
+     border-image: url("%THEMEPATH%/images/Button_hover.png") 0 0 0 0 stretch;
+}
+
+QTabWidget#topTabs > QTabBar::tab:selected
+{
+     border-image: url("%THEMEPATH%/images/Button_down.png") 0 0 0 0 stretch;
+}
+
+
+/* Vertical slidy bar. This covers the whole area and the handle is the actual bar */
+QSplitter
+{
+ background-color: none;
+}
+
+QSplitter::handle
+{
+ background-color: transparent;
+}
+
+
+QSplitter::handle:horizontal 
+{
+     width: 8px;
+}
+
+QSplitter::handle:vertical 
+{
+     height: 8px;
+}
+
+QHBoxLayout#horizontalLayout
+{
+    border-style:solid;
+    border-width:10px;
+    border-color:#000000;
+    background-position: center;
+    background-color: #000000;
+    background-attachment: fixed;
+    color: #fd5e0d;
+    padding:5px;
+    background-color: transparent;
+    border-radius: 0px;
+}
+
+ 
+/* Text controls */
+/**************************************    CHAT MAIN WINDOW     ***********************************/
+QTextEdit
+{
+    border-style:solid;
+    border-width:0px;
+    border-color:#000000;
+    background-position: center;
+    background-color: #000000;
+    background-attachment: fixed;
+    color: #fd5e0d;
+    padding:5px;
+    background-color: transparent;
+    border-radius: 0px;
+}
+
+/**********************  ********************/
+QPlainTextEdit
+{
+    border-style:solid;
+    border-width:0px;
+    border-color:#000000;
+    background-image: none;
+    background-position: center;
+    background-color: transparent;
+    background-attachment: fixed;
+    color: #fd5e0d;
+    padding:5px;
+    border-radius: 0px;
+}
+
+/********************** TEXT TYPE BAR ********************/
+QLineEdit
+{
+    border-style:solid;
+    border-width:1px;
+    border-color: #2f2f2f;
+    padding:5px;
+    padding-left:9px;
+    background-color: rgba(0, 0, 0, 50);
+    color: #fd5e0d;
+    border-radius: 0px;
+}
+
+
+/* the list containing the nicknames */
+ChatterListView#nickList
+{
+    border-style:none;
+    border-width:0px;
+}
+/* dark gray: rgba(150,150,150,30) */
+/* medium gray: rgba(150,150,150,40) */
+
+/*********************************************** FIND GAME ************************************************************/
+QListWidget#modList,#gameList
+{/* dont really know whats going on here with the borders tbh. */
+    border-style:none;
+    border-width:20px;
+    border-color:none;
+    background-position: center;
+    color: #CCCCCC;
+    padding:0px;
+    background-color: transparent;
+    border-radius: 0px;
+    border-image: url("%THEMEPATH%/images/SecWin.png") 20 stretch;
+    margin:0px;
+}
+
+QPushButton#mapSelectButton
+{
+    background-color: transparent;
+    border: 0px solid #ff0000;
+    padding: 20px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 60px;
+    margin-right: 60px;
+    margin-top: 5px;
+    background-position: center;
+    border-image: url("%THEMEPATH%/images/Button_upS.png");
+    color: #CCCCCC;
+}
+
+QPushButton#mapSelectButton:hover
+{
+    color: #fd5e0d;
+    border-image: url("%THEMEPATH%/images/Button_hoverS.png");
+}
+
+
+QPushButton#mapSelectButton:pressed
+{
+    color: #fd5e0d;
+    border-image: url("%THEMEPATH%/images/Button_downS.png");
+}
+
+QCheckBox#hideGamesWithPw
+{
+    color: #fd5e0d;
+}
+
+QComboBox#sortGamesComboBox
+{
+    margin: 0px;
+}
+/************************************ host game dialogue,    some labels below****************/
+
+QDialog
+{
+    background-image: url('%THEMEPATH%/images/Background_Base01.png');
+    background-position: center;
+    background-color: none;
+    background-attachment: fixed;
+}
+
+
+QCheckBox#passCheck
+{
+    color:  #CCCCCC;
+}
+
+QRadioButton#radioPublic,#radioFriends,#radioHidden
+{
+    color:  #CCCCCC;
+}
+
+QPushButton#hostButton
+{
+    font: bold;
+    padding: 15px;
+    padding-left: 40px;
+    padding-right: 40px;
+    subcontrol-position: left;
+    border-style:solid;
+    border-width:1px;
+    border-color: #3f3f3f;
+    background-color: rgba(0, 0, 0, 50);
+    color: #fd5e0d;
+    border-radius: 0px;
+}
+
+QPushButton#hostButton:hover
+{
+    color: #CCCCCC;
+}
+
+QPushButton#hostButton:pressed
+{
+    background-color: rgba(0, 0, 0, 80);
+    color: #fd5e0d;
+}
+
+QListWidget#modList::item:selected
+{
+    color: #fd5e0d;
+    background: none;
+}
+
+QListWidget#modList::item:previously-selected
+{
+    border: none;
+}
+
+QListWidget#modList::item:hover
+{
+    background: rgba(0, 0, 0, 45);
+    color:#fd5e0d;
+}
+
+
+QLineEdit#titleEdit, #passEdit
+{
+    color:#fd5e0d;
+    border-color: #3f3f3f;
+}
+/*********************** All the other list items - tournament; tabs 2,3,4 of tutorials, ect***************************/
+QListWidget
+{
+    border-style:solid;
+    border-width:0px;
+    border-color:#e7b328;
+    background-image: none;
+    background-position: center;
+    color: #CCCCCC;
+    padding:10px;
+    background: transparent;
+    border-radius: 0px;
+    margin: 0px;
+}
+
+QListWidget#listWidget {
+    background: transparent;
+    color: #CCCCCC;
+    border-width:0px;
+}
+
+/*************************************************** for tournament*****************************************************/
+QListWidget#tourneyList
+{
+    border-style:none;
+    padding:0px;
+    margin: 0px;
+    background: transparent;
+}
+
+
+
+
+
+
+
+/******************          coop         *********************************************************************************************************/
+
+
+QPushButton#linkButton
+{
+margin-left:100px;
+margin-right:100px;
+}
+
+QPushButton#linkButton:hover
+{
+}
+
+QPushButton#linkButton:pressed
+{
+}
+
+/******************************************   mod vault        ***********************************************/
+QDialog#UIModDialog > QListWidget#modList
+{
+margin-left: 10px;
+}
+
+/*labels. left here if you want to change their colour to be different*/
+QLabel#LabelSort, #labelShow
+{
+color: #CCCCCC;
+}
+
+
+
+QPushButton#doneButton
+{
+    margin-bottom:10px;
+    min-width:60px;
+    font:bold;
+    border-style:solid;
+    border-width:1px;
+    border-color: #3f3f3f;
+    padding:7px;
+    padding-bottom:6px;
+    padding-left:9px;
+    padding-right:9px;
+    background-color: rgba(0, 0, 0, 50);
+    color: #fd5e0d;
+    border-radius: 0px;
+}
+
+QPushButton#doneButton:hover
+{
+    color: #CCCCCC;
+}
+
+QPushButton#doneButton:pressed
+{
+    background-color: rgba(0, 0, 0, 80);
+    color: #fd5e0d;
+}
+
+QTabWidget#tabWidget
+{
+    border: 1px solid #fd5e0d;
+    background-image: none;
+    background-position: center;
+    color: #CCCCCC;
+    padding:50px;
+    background-color:none;
+    border-radius: 0px;
+    margin-top: 0px;
+}
+
+QPushButton#DownloadButton,#likeButton
+{
+    margin-bottom:10px;
+    min-height:25px;
+    margin: 5px;
+    border-image: url("%THEMEPATH%/images/Button_downS.png") 0 stretch;
+    border: 0px solid #000000;
+    padding: 15px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+/*sorting out the tabs in the mod info dialogue*/
+
+QTabWidget#tabWidget::pane
+{ /* The tab widget frame */
+    background-color: transparent;
+    border-image: url("%THEMEPATH%/images/SecWin.png") 10 stretch;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-width: 10px;
+    margin: 5px;
+}
+
+QLineEdit#LineComment,#LineBugReport
+{
+    padding:-1px;
+    padding-left:5px;
+}
+
+/*************************           leagues tab                  *******************************************************************/
+
+/*for css which does tabs properly look in : stats/formatters/style.css but this requires a restart every time */
+
+
+/********************** REPLAYS ***this parts long :)********************************************************************************************/
+QTreeWidget
+{
+    border-style:solid;
+    border-width:0px;
+    border-color:#000000;
+    background-image: none;
+    background-attachment: fixed;
+    background-position: center;
+    color: #CCCCCC;
+    padding:5px;
+    background-color:transparent;
+    border-radius: 0px;
+}
+
+
+
+
+/*the button of the drop down tree lists*/
+QTreeView::branch:has-children:!has-siblings:closed,
+QTreeView::branch:closed:has-children:has-siblings {
+         border-image: none;
+         image: url("%THEMEPATH%/images/arrow_right.png");
+ }
+
+QTreeView::branch:has-children:!has-siblings:closed:hover,
+QTreeView::branch:closed:has-children:has-siblings:hover {
+         border-image: none;
+         image: url("%THEMEPATH%/images/arrow_right_hover.png");
+ }
+
+QTreeView::branch:open:has-children:!has-siblings,
+QTreeView::branch:open:has-children:has-siblings  {
+         border-image: none;
+         image: url("%THEMEPATH%/images/arrow_down_hover.png");
+ }
+
+QTreeView::branch:open:has-children:!has-siblings:hover,
+QTreeView::branch:open:has-children:has-siblings:hover  {
+         border-image: none;
+         image: url("%THEMEPATH%/images/arrow_down_hover.png");
+ }
+
+QTableWidget #replaysTab
+{
+    border-style:solid;
+    border-width:0px;
+    border-color:#000000;
+    background-image: none;
+    background-position: center;
+    background-attachment: fixed;
+    color: #CCCCCC;
+    padding:5px;
+    background-color:transparent;
+    border-radius: 0px;
+}
+
+QTextEdit#replayInfos
+{
+    border-style:solid;
+    border-width:0px;
+    border-color:#000000;
+    background-image: none;
+    background-position: center;
+    background-color: transparent;
+    background-attachment: fixed;
+    color: #CCCCCC;
+    padding:5px;
+    border-radius: 13px;
+}
+/***the search button in the replays***/
+
+/*****************************these are actually in the host game dialogue, and replay tab as well. yeah. ***************/
+QLabel#label_3,#label,#label_2 {
+    color: #fd5e0d;
+}
+
+QLabel#label_1,#label_4{
+    color: #fd5e0d;
+}
+
+QCheckBox#spoilerCheckbox,#automaticCheckbox {
+    color: #CCCCCC;
+}
+
+QGroupBox#groupBox {
+    color: #CCCCCC;
+    border: none;
+}
+
+
+/***min rating spin box***/
+QSpinBox#minRating
+{
+    border-style:solid;
+    border-width:1px;
+    border-color: #2f2f2f;
+    padding:5px;
+    padding-left:9px;
+    background-color: rgba(0, 0, 0, 50);
+    color: #fd5e0d;
+    border-radius: 0px;
+}
+
+/********down**/
+
+QSpinBox#minRating::down-button
+{
+    background-image: url('%THEMEPATH%/images/arrow_down.png');
+    background-position: center;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+
+QSpinBox#minRating::down-button:hover
+{
+    background-image: url('%THEMEPATH%/images/arrow_down_hover.png');
+}
+
+QSpinBox#minRating::down-button:pressed
+{
+    background-image: url('%THEMEPATH%/images/arrow_down.png');
+}
+
+/************up*************/
+
+QSpinBox#minRating::up-button
+{
+    background-image: url('%THEMEPATH%/images/arrow_up.png');
+    background-position: center;
+    background-color: transparent;
+    background-repeat: no-repeat;
+}
+
+QSpinBox#minRating::up-button:hover
+{
+    background-image: url('%THEMEPATH%/images/arrow_up_hover.png');
+}
+
+QSpinBox#minRating::up-button:pressed
+{
+    background-image: url('%THEMEPATH%/images/arrow_up.png');
+}
+
+
+/************featured mod selection, and other things too.*************/
+/************also styles the map dropdown in the host game dialog*************/
+
+QComboBox, QComboBox:On
+{
+    border-style:solid;
+    border-width:1px;
+    border-color: #2f2f2f;
+    padding:5px;
+    padding-left:9px;
+    background-color: rgba(0, 0, 0, 50);
+    color: #fd5e0d;
+    border-radius: 0px;
+}
+
+
+QComboBox QListView {
+    background: #222222;
+}
+
+QComboBox::drop-down, QComboBox::drop-down:pressed
+{
+    border-style:none;
+    background-image: url('%THEMEPATH%/images/arrow_down.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    padding:5px;
+}
+
+QComboBox::drop-down:hover, QComboBox::drop-down:on
+{
+    background-image: url('%THEMEPATH%/images/arrow_down_hover.png');
+}
+
+QComboBox::down-arrow:on, QComboBox::down-arrow
+{
+    background-image: url('%THEMEPATH%/images/arrow_down.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border-width:0px;
+}
+/******************************the dropdown in the comboboxes ****************************/
+QListView {
+    background: transparent;
+    color: #CCCCCC;
+    border-width:0px;
+}
+
+/***********the search button***********/
+
+QPushButton#searchButton
+{
+    border-style:solid;
+    border-width:1px;
+    color: #fd5e0d;
+    border-radius: 0px;
+    margin-left: 7px;
+    margin-right: 7px;
+}
+
+QPushButton#searchButton:hover
+{
+    color: #CCCCCC;
+}
+
+QPushButton#searchButton:pressed
+{
+    background-color: rgba(0, 0, 0, 80);
+    color: #fd5e0d;
+}
+/************the replay vault replay browser is also affected by this**********/
+QAbstractItemView::item:hover {
+    background: rgba(0, 0, 0, 45);
+    color: #fd5e0d;
+}
+
+QAbstractItemView::item:selected {
+    border-style:none;
+    border-width:0px;
+    border-color: #2f2f2f;
+    background-color: rgba(0, 0, 0, 50);
+    color: #CCCCCC;
+    border-width:0px;
+}
+/********************** NICKLIST BACKGROUND ********************/
+/*probably obsolete, couldnt find what it does*/
+QTableWidget
+{
+    border-style:solid;
+    border-width:10px;
+    border-color:#ff0000;
+    background-image: none;
+    background-position: topleft;
+    background-attachment: fixed;
+    color: #CCCCCC;
+    padding:5px;
+    background-color: transparent;
+    border-radius: 0px;
+}
+
+
+
+/******************************************    Nicklist controls    *****************************************/
+/* Nicklist controls */
+
+QTableWidget::item
+{
+    margin: 0px;
+    border: none;
+    padding:0px;
+}
+
+QTableWidget::item::hover
+{
+    background: rgba(150, 150, 150, 30);
+    border-radius: 0px;
+    
+}
+
+
+QTableWidget::item:selected, QTableWidget::item:previously-selected
+{
+    border: none;
+}
+
+QListWidget::item:hover
+{
+    border: none;
+    background: rgba(150, 150, 150, 30);
+    border-radius: 0px;
+    
+}
+
+QListWidget::item:selected, QListWidget::item:previously-selected
+{
+    border: none;
+}
+
+ 
+
+
+
+/* Scrollbars*/
+QScrollBar:vertical
+{
+    background-color: transparent;
+    border-radius: 0px;
+    width:16px;
+    padding:0px;
+    margin-top:10px;
+    margin:3px;
+    margin-bottom:10px;
+  }
+
+QScrollBar::handle:vertical 
+{
+    background: rgba(0, 0, 0, 45);
+    border:1px solid #181818;
+    min-height: 40px;
+    border-radius: 2px;
+    margin-top:10px;
+    margin-bottom:3px;
+}
+
+QScrollBar::handle:vertical:hover, QScrollBar::handle:vertical:pressed
+{
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical 
+{
+    border: none;
+    background-color:none;
+}
+
+QScrollBar::sub-line:vertical
+{
+    border: none;
+    background-color: transparent;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+    height: 10px;
+    width: 10px;
+    border-image: url('%THEMEPATH%/images/arrow_up.png') 0 stretch;
+}
+
+QScrollBar::sub-line:vertical:hover
+{
+    border-image: url('%THEMEPATH%/images/arrow_up_hover.png') 0 stretch;
+    background-postiton: center;
+}
+
+
+QScrollBar::add-line:vertical
+{
+    border: none;
+    background-color: transparent;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+    height: 10px;
+    width: 10px;
+    border-image: url('%THEMEPATH%/images/arrow_down.png') 0 stretch;
+}
+
+QScrollBar::add-line:vertical:hover
+{
+    border-image: url('%THEMEPATH%/images/arrow_down_hover.png') 0 stretch;
+    background-postiton: center;
+}
+
+QAbstractScrollArea::corner {
+    background: transparent;
+}
+
+QScrollBar:horizontal
+{
+    background: transparent;
+    height: 10px;
+    border-radius: 5px;
+    padding:0px;
+    margin-left:0px;
+    margin-right:0px;
+}
+
+QScrollBar::handle:horizontal 
+{
+    background: rgba(0, 0, 0, 45);
+    border:1px solid #181818;
+    min-width: 40px;
+    border-radius: 2px;
+    margin-left:13px;
+    margin-right:13px;
+}
+
+QScrollBar::handle:horizontal:hover, QScrollBar::handle:horizontal:pressed
+{
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal 
+{
+    border: none;
+    background-color:none;
+}
+
+QScrollBar::add-line:horizontal
+{
+    border: none;
+    background-color: none;
+    width: 10px;
+    height: 10px;
+    background-image: url('%THEMEPATH%/images/arrow_right.png');
+}
+
+QScrollBar::add-line:horizontal:hover
+{
+    background-image: url('%THEMEPATH%/images/arrow_right_hover.png');
+}
+
+QScrollBar::sub-line:horizontal
+{
+    border: none;
+    background-color: transparent;
+    width: 10px;
+    height: 10px;
+    subcontrol-position: left;
+    background-image: url('%THEMEPATH%/images/arrow_left.png');
+}
+
+QScrollBar::sub-line:horizontal:hover
+{
+    background-image: url('%THEMEPATH%/images/arrow_left_hover.png');
+}
+
+QScrollArea
+{
+    border-style:solid;
+    border-width:0px;
+    border-color:transparent;
+    color:CCCCCC;
+    padding:5px;
+    background-color:transparent;
+    border-bottom-left-radius : 0px;
+    border-bottom-right-radius : 0px; 
+}
+
+/*************************************all the little text things*****************/
+
+Qlabel
+{
+    color:#CCCCCC;
+}
+
+QLabel#labelSortGames,#labelJoinGame,#labelHostGame,#labelAutomatch,#labelMyReplays,#labelLiveReplays,#labelHostTournament,#labelJoinTournament,#joinLabel,#labelTeamManagement
+{
+    color: #fd5e0d;
+}
+
+QLabel#labelModHint,#labelMyHint,#labelLiveHint,#labelSubsetRankedHint,#labelRankedHint,#labelTeamManagementHint,#labelTeamManagementHint2,#labelTeamManagementHint3
+{
+    qproperty-alignment: AlignCenter;
+    color: #fd5e0d;
+}
+
+QPushButton
+{
+    border-style:solid;
+    border-width:1px;
+    border-color: #2f2f2f;
+    padding:7px;
+    padding-bottom:6px;
+    padding-left:9px;
+    padding-right:9px;
+    background-color: rgba(0, 0, 0, 50);
+    color: #fd5e0d;
+    border-radius: 0px;
+}
+
+QPushButton:hover
+{
+    color: #CCCCCC;
+}
+
+QPushButton:pressed
+{
+    background-color: rgba(0, 0, 0, 80);
+    color: #fd5e0d;
+}
+
+/* Used for Ranked Buttons only at the moment*/
+
+QFrame#rankedFrame
+{
+    border-style:solid;
+    border-width:20px;
+    border-color: transparent;
+    background-image: none;
+    background-position: center;
+    color: #CCCCCC;
+    padding:0px;
+    background-color:none;
+    border-radius: 0px;
+    margin-top: 0px;
+    border-image: url("%THEMEPATH%/images/SecWin.png") 20 stretch;
+}
+
+QFrame#teamFrame
+{
+    border-style:solid;
+    border-width:20px;
+    border-color: transparent;
+    background-image: none;
+    background-position: center;
+    color: #CCCCCC;
+    padding:0px;
+    background-color:none;
+    border-radius: 0px;
+    margin-top: 27px;
+    min-width: 200px;
+    border-image: url("%THEMEPATH%/images/SecWin.png") 20 stretch;
+}
+
+QToolButton
+{
+    border: none;
+    margin-top:0px;
+    color: #CCCCCC;
+    padding:0px;
+    background-color: transparent;
+    border-radius : 0px;
+}
+
+QToolButton::pressed 
+{
+    border: none;
+    color: #CCCCCC;
+    padding:0px;
+    background-color: rgba(150, 150, 150, 120);
+    border-radius : 0px;
+}
+
+QToolButton::hover
+{
+    border: none;
+    color: #CCCCCC;
+    padding:0px;
+    background-color: rgba(150, 150, 150, 40);
+    border-radius : 0px;
+ }
+
+QToolButton::checked
+{
+    border: none;
+    color: #CCCCCC;
+    padding:0px;
+    background-color:rgba(150, 150, 150, 70);
+    border-radius : 0px;
+}

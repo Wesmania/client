@@ -43,6 +43,8 @@ LUA_DIR = os.path.join(APPDATA_DIR, "lua")
 
 # This contains the themes
 THEME_DIR = os.path.join(APPDATA_DIR, "themes")
+# And this contains themes packaged with the client
+BUILTIN_THEME_DIR = os.path.join(COMMON_DIR, "themes")
 
 # This contains cached data downloaded while communicating with the lobby - at the moment, mostly map preview pngs.
 CACHE_DIR = os.path.join(APPDATA_DIR, "cache")
@@ -186,13 +188,18 @@ def _setup_theme():
     global VERSION_STRING
 
     default = Theme(COMMON_DIR, None)
-    themes = []
-    if os.path.isdir(THEME_DIR):
-        for infile in os.listdir(THEME_DIR):
-            theme_path = os.path.join(THEME_DIR, infile)
-            if os.path.isdir(os.path.join(THEME_DIR, infile)):
-                themes.append(Theme(theme_path, infile))
-    THEME = ThemeSet(themes, default, Settings, VERSION_STRING)
+
+    def themes_in_dir(d, prefix=""):
+        if not os.path.isdir(d):
+            return
+        for themedir in os.listdir(d):
+            theme_path = os.path.join(d, themedir)
+            yield Theme(theme_path, prefix + themedir)
+
+    all_themes = list(themes_in_dir(THEME_DIR))
+    all_themes += list(themes_in_dir(BUILTIN_THEME_DIR, "(Builtin) "))
+    # Add native themes
+    THEME = ThemeSet(all_themes, default, Settings, VERSION_STRING)
 
 
 _setup_theme()
