@@ -3,7 +3,7 @@ import copy
 import time
 import asyncio
 
-from acute import AsyncSignals
+from quamash import AsyncSignals
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QUrl

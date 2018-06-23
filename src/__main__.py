@@ -18,7 +18,7 @@ import os
 import sys
 
 import asyncio
-import acute
+import quamash
 
 # Some linux distros (like Gentoo) make package scripts available
 # by copying and modifying them. This breaks path to our modules.
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     QtWidgets.QApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
     app = QtWidgets.QApplication(trailing_args)
-    loop = acute.QEventLoop(app)
+    loop = quamash.QEventLoop(app)
     asyncio.set_event_loop(loop)
 
     if sys.platform == 'win32':
