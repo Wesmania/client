@@ -7,6 +7,7 @@ import fafpath
 import traceback
 import faulthandler
 from PyQt5 import QtCore
+from semantic_version import Version
 from logging.handlers import RotatingFileHandler, MemoryHandler
 
 if sys.platform == 'win32':
@@ -168,14 +169,6 @@ def make_dirs():
                 os.makedirs(path)
 
 
-VERSION = version.get_release_version(dir=fafpath.get_resdir(),
-                                      git_dir=fafpath.get_srcdir())
-
-
-def is_development_version():
-    return version.is_development_version(VERSION)
-
-
 # FIXME: Don't initialize proxy code that shows a dialogue box on import
 no_dialogs = False
 
@@ -199,6 +192,29 @@ elif environment == 'development':
 for k, v in defaults.items():
     if isinstance(v, str):
         defaults[k] = v.format(host=Settings.get('host'))
+
+
+VERSION = version.get_release_version(dir=fafpath.get_resdir(),
+                                      git_dir=fafpath.get_srcdir())
+HIGHEST_PREVIOUS_VERSION = None
+
+
+def check_last_version():
+    global HIGHEST_PREVIOUS_VERSION
+    HIGHEST_PREVIOUS_VERSION = Settings.get('internal/highest_version', None)
+    try:
+        if (HIGHEST_PREVIOUS_VERSION is None or
+                Version(VERSION) > Version(HIGHEST_PREVIOUS_VERSION)):
+            Settings.set('internal/highest_version', VERSION)
+    except ValueError:
+        pass
+
+
+check_last_version()
+
+
+def is_development_version():
+    return version.is_development_version(VERSION)
 
 
 def os_language():

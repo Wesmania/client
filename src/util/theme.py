@@ -1,5 +1,6 @@
 from PyQt5 import QtGui, QtWidgets, QtCore, QtMultimedia, uic
 from semantic_version import Version
+from config import HIGHEST_PREVIOUS_VERSION
 import os
 
 import logging
@@ -138,12 +139,23 @@ class ThemeSet(QtCore.QObject):
 
     def loadTheme(self):
         name = self._settings.get("theme/theme/name", None)
-        # FIXME: Tiny hack to always load the new theme by default, for
-        # development versions. Once we decide if it goes in, remove this.
-        if name is None or name == "":
-            name = "(Builtin) R[e]tarded"
+        name = self._first_load_alternative_theme_name(name)
         logger.info("Loaded Theme: " + str(name))
         self.setTheme(name, False)
+
+    # FIXME: Tiny hack to load the new theme by default, for development
+    # versions. Once we decide if it goes in, remove this.
+    def _first_load_alternative_theme_name(self, name):
+        override = "(Builtin) R[e]tarded"
+        if HIGHEST_PREVIOUS_VERSION is None:
+            return override
+        base_version = Version(HIGHEST_PREVIOUS_VERSION)
+        base_version.patch = 0
+        base_version.prerelease = ()
+        if base_version < Version('0.19.0'):
+            if name is None or name == "":
+                return override
+        return name
 
     def listThemes(self):
         return [None] + [theme.name for theme in self._themeset]

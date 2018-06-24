@@ -18,6 +18,7 @@ from util.theme import Theme, ThemeSet
 
 from config import Settings
 from config import VERSION as VERSION_STRING
+from config import HIGHEST_PREVIOUS_VERSION
 import fafpath
 import logging
 
@@ -185,7 +186,6 @@ THEME = None
 
 def _setup_theme():
     global THEME
-    global VERSION_STRING
 
     default = Theme(COMMON_DIR, None)
 
