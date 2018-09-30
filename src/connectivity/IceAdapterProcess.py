@@ -20,7 +20,7 @@ class IceAdapterProcess(object):
         s.close()
 
         if sys.platform == 'win32':
-            exe_path = os.path.join(fafpath.get_libdir(), "faf-ice-adapter.exe")
+            exe_path = os.path.join(fafpath.get_libdir(), "ice-adapter", "faf-ice-adapter.exe")
         else:  # Expect it to be in PATH already
             exe_path = "faf-ice-adapter"
 
