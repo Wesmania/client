@@ -12,6 +12,7 @@ else:
 
 defaults = production_defaults.copy()
 defaults['host'] = 'test.faforever.com'
+defaults['replay_server/host'] = 'test.faforever.com'
 defaults['updater/host'] = 'lobby.faforever.com'
 defaults['client/logs/console'] = True
 defaults['content/host'] = 'http://content.faforever.com'
